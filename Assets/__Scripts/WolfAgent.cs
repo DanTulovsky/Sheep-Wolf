@@ -39,6 +39,16 @@ public class WolfAgent : Agent {
 
     public override void OnActionReceived(float[] branches) {
         Debug.Log($"[wolf] action received: {branches}");
+        if (GameManager.Instance.winner == Player.Wolf) {
+            SetReward(1.0f);
+            Debug.Log("[wolf] Ending episode (sheep stuck?), wolf won...");
+            EndEpisode();
+        }
+        if (GameManager.Instance.winner == Player.Sheep) {
+            SetReward(-1.0f);
+            Debug.Log("[wolf] Ending episode (how can this happen?), sheep won...");
+            EndEpisode();
+        }
 
         wolfSquareController = wolf.Square().GetComponent<SquareController>();
 
@@ -64,6 +74,7 @@ public class WolfAgent : Agent {
         if (nextSquare.GetComponent<SquareController>().row == 0) {
             SetReward(1.0f);
             GameManager.Instance.wolfWon++;
+            GameManager.Instance.winner = Player.Wolf;
             EndEpisode();
         }
     }
@@ -91,6 +102,7 @@ public class WolfAgent : Agent {
             SetReward(-1.0f);
             EndEpisode();
             GameManager.Instance.sheepWon++;
+            GameManager.Instance.winner = Player.Sheep;
             return;
         };
 

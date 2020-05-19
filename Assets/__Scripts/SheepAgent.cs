@@ -132,6 +132,7 @@ public class SheepAgent : Agent {
             SetReward(-1.0f);
             EndEpisode();
             GameManager.Instance.wolfWon++;
+            GameManager.Instance.winner = Player.Wolf;
             return;
         };
 
