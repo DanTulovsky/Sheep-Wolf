@@ -10,8 +10,11 @@ public class SheepAgent : Agent {
     SquareController wolfSquareController;
     SquareController shpSquareController;
 
+    private bool haveObservation;
+
     public override void OnEpisodeBegin() {
         Debug.Log("[sheep] begin episode!");
+        haveObservation = false;
     }
 
     public override void CollectObservations(VectorSensor sensor) {
@@ -33,10 +36,15 @@ public class SheepAgent : Agent {
             sensor.AddObservation(shpSquareController.column);
             sensor.AddObservation(shpSquareController.row);
         }
+
+        haveObservation = true;
     }
 
     public override void OnActionReceived(float[] branches) {
         Debug.Log($"[sheep] action received: {branches}");
+        if (!haveObservation) {
+            Debug.Log("[sheep] No observation, not taking action!");
+        }
 
         // 1 branch
         //  0 = {sheep = 0; row = 1; col = -1}

@@ -11,8 +11,14 @@ public class WolfAgent : Agent {
     SquareController shpSquareController;
     SquareController wolfSquareController;
 
+    // After a reset, there is sometimes another action that gets sent in
+    // But the observation is pre-reset, so it's invalid
+    // Workaround that by keeping track of observations.
+    private bool haveObservation;
+
     public override void OnEpisodeBegin() {
         Debug.Log("[wolf] begin episode!");
+        haveObservation = false;
     }
 
     public override void CollectObservations(VectorSensor sensor) {
@@ -34,21 +40,16 @@ public class WolfAgent : Agent {
             sensor.AddObservation(shpSquareController.column);
             sensor.AddObservation(shpSquareController.row);
         }
+
+        haveObservation = true;
     }
 
 
     public override void OnActionReceived(float[] branches) {
         Debug.Log($"[wolf] action received: {branches}");
-        //if (GameManager.Instance.winner == Player.Wolf) {
-        //    SetReward(1.0f);
-        //    Debug.Log("[wolf] Ending episode (sheep stuck?), wolf won...");
-        //    EndEpisode();
-        //}
-        //if (GameManager.Instance.winner == Player.Sheep) {
-        //    SetReward(-1.0f);
-        //    Debug.Log("[wolf] Ending episode (how can this happen?), sheep won...");
-        //    EndEpisode();
-        //}
+        if (!haveObservation) {
+            Debug.Log("[wolf] No observation, not taking action!");
+        }
 
         wolfSquareController = wolf.Square().GetComponent<SquareController>();
         Debug.Log($"[wolf] Wolf at: {wolfSquareController}");

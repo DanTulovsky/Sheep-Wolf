@@ -14,8 +14,10 @@ public enum Player {
 }
 
 public class GameManager : Singleton<GameManager> {
-    public GameObject selectedObject;
     private Player turn = Player.Sheep;
+    private StatsRecorder statsRecorder;
+
+    public GameObject selectedObject;
     public Player Turn { get => turn; set => turn = value; }
 
     public Agent wolfAgent;
@@ -54,7 +56,9 @@ public class GameManager : Singleton<GameManager> {
     protected override void Awake() {
         base.Awake();
 
-        //Academy.Instance.OnEnvironmentReset += ResetGame;
+        Academy.Instance.AutomaticSteppingEnabled = false;
+        Academy.Instance.OnEnvironmentReset += ResetGame;
+        statsRecorder = Academy.Instance.StatsRecorder;
     }
 
     // Start is called before the first frame update
@@ -62,7 +66,7 @@ public class GameManager : Singleton<GameManager> {
 
         OneTimeSetup();
 
-        ResetGame();
+        //ResetGame();
         Academy.Instance.EnvironmentStep();
 
         // calculates the wolf's move when it's the wolf's turn
@@ -72,26 +76,33 @@ public class GameManager : Singleton<GameManager> {
 
     void Update() {
 
+        if (HaveWinner()) {
+            winningText.SetText($"The winner is: {winner.ToString()}");
+            winningText.enabled = true;
+            Debug.Log("  [update] Resetting game...");
+            ResetGame();
+            return;
+        }
+
+
         switch (Turn) {
             case Player.Sheep:
-                if (!sheepNext || !sheepNextMove) {
-                    // Collects observations and gets an action
-                    // this sets sheepNext and sheepNextMove
-                    sheepAgent.RequestDecision();
-                    // execute decision
-                    Academy.Instance.EnvironmentStep();
-                } else {
-                    Select(sheepNext);
-                    HightlightNextPossibleMove(sheepNext);
-                    sheepNext.GetComponent<SheepController>().HighLight();
+                // Collects observations and gets an action
+                // this sets sheepNext and sheepNextMove
+                sheepAgent.RequestDecision();
+                // execute decision
+                Academy.Instance.EnvironmentStep();
 
-                    if (SheepMovePossible(sheepNext, sheepNextMove)) {
-                        SheepMoveTo(sheepNext, sheepNextMove);
-                        sheepNextMove = null;
-                        sheepNext = null;
-                        turn = Player.Wolf;
-                        UnSelect();
-                    }
+                Select(sheepNext);
+                HightlightNextPossibleMove(sheepNext);
+                sheepNext.GetComponent<SheepController>().HighLight();
+
+                if (SheepMovePossible(sheepNext, sheepNextMove)) {
+                    SheepMoveTo(sheepNext, sheepNextMove);
+                    sheepNextMove = null;
+                    sheepNext = null;
+                    turn = Player.Wolf;
+                    UnSelect();
                 }
                 break;
 
@@ -111,27 +122,25 @@ public class GameManager : Singleton<GameManager> {
                     wolfNextMove = null;
                     turn = Player.Sheep;
                     UnSelect();
-                } else {
-                    // wolf can't move
-
                 }
+
                 break;
 
             default:
                 throw new Exception(String.Format("Unknown state: {0}", Turn));
-
-        }
-
-
-        if (HaveWinner()) {
-            winningText.SetText($"The winner is: {winner.ToString()}");
-            winningText.enabled = true;
-            ResetGame();
         }
 
         whoseTurnText.SetText(turn.ToString());
         wolfGamesWon.SetText(wolfWon.ToString());
         sheepGamesWon.SetText(sheepWon.ToString());
+
+        // Send stats via SideChannel so that they'll appear in TensorBoard.
+        // These values get averaged every summary_frequency steps, so we don't
+        // need to send every Update() call.
+        if ((Time.frameCount % 100) == 0) {
+            statsRecorder.Add("WolfGamesWon", wolfWon);
+            statsRecorder.Add("SheepGamesWon", sheepWon);
+        }
     }
 
 
@@ -151,9 +160,9 @@ public class GameManager : Singleton<GameManager> {
         winningText.enabled = false;
         winner = Player.None;
         Turn = Player.Sheep;
-
-        wolfAgent.Initialize();
-        sheepAgent.Initialize();
+        sheepNext = null;
+        sheepNextMove = null;
+        wolfNextMove = null;
     }
 
     // Reset squares after episode
@@ -320,7 +329,7 @@ public class GameManager : Singleton<GameManager> {
 
         // Wolf made it to the end
         if (wolfController.Square().GetComponent<SquareController>().row == 0) {
-            Debug.Log("[manager] Wolf won!");
+            Debug.Log(">>>>>>>>>>>>>>>>>>>>>>>>>>  [manager] Wolf won!");
             winner = Player.Wolf;
 
             wolfAgent.SetReward(1.0f);
@@ -337,7 +346,7 @@ public class GameManager : Singleton<GameManager> {
         // Wolf can't move
         List<GameObject> possibleMoves = wolfController.Square().GetComponent<SquareController>().PossibleWolfMoves();
         if (possibleMoves.Count == 0) {
-            Debug.Log("[manager] Sheep won!");
+            Debug.Log(">>>>>>>>>>>>>>>>>>>>>>>>>>  [manager] Sheep won!");
             winner = Player.Sheep;
 
             wolfAgent.SetReward(-1.0f);
@@ -354,7 +363,7 @@ public class GameManager : Singleton<GameManager> {
         // sheep can't move, but wolf hasn't made it to the end yet
         // this happens because the wolf can move randomly
         if (!SheepCanMove()) {
-            Debug.Log("[manager] Sheep won (by default)!");
+            Debug.Log(">>>>>>>>>>>>>>>>>>>>>>>>>>  [manager] Sheep won (by default)!");
             winner = Player.Wolf;
 
             wolfAgent.SetReward(1.0f);
