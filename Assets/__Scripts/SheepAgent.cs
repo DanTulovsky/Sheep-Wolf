@@ -36,18 +36,6 @@ public class SheepAgent : Agent {
     }
 
     public override void OnActionReceived(float[] branches) {
-        if (GameManager.Instance.winner == Player.Wolf) {
-            SetReward(-1.0f);
-            Debug.Log("[sheep] Ending episode, wolf won...");
-            EndEpisode();
-            return;
-        } else if (GameManager.Instance.winner == Player.Sheep) {
-            SetReward(1.0f);
-            Debug.Log("[sheep] Ending episode, sheep won...");
-            EndEpisode();
-            return;
-        }
-
         Debug.Log($"[sheep] action received: {branches}");
 
         // 1 branch
@@ -129,12 +117,13 @@ public class SheepAgent : Agent {
         // all sheep can't move, this happens if they get to the other side
         // but the wolf has not yet made it to the end (which can happen with random movements)
         if (notAllowed.Count == 8) { // 8 sheep * 2 moves each
-            SetReward(-1.0f);
-            EndEpisode();
-            GameManager.Instance.wolfWon++;
-            GameManager.Instance.winner = Player.Wolf;
+            //SetReward(-1.0f);
+            //EndEpisode();
+            //GameManager.Instance.wolfWon++;
+            //GameManager.Instance.winner = Player.Wolf;
+            Debug.Log($"[sheep] stuck; setting wolf as winner: {GameManager.Instance.winner}");
             // let the wolf check one more time so it picks up the fact that it won
-            GameManager.Instance.Turn = Player.Wolf;
+            //GameManager.Instance.Turn = Player.Wolf;
             return;
         };
 
@@ -175,6 +164,7 @@ public class SheepAgent : Agent {
         }
         return returnIndex;
     }
+
 
     public override void Heuristic(float[] actionsOut) {
         Debug.Log("[sheep] in heuristic");

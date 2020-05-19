@@ -309,15 +309,58 @@ public class GameManager : Singleton<GameManager> {
 
         if (wolfController.Square().GetComponent<SquareController>().row == 0) {
             winner = Player.Wolf;
+
+            wolfAgent.SetReward(1.0f);
+            wolfAgent.EndEpisode();
+
+            sheepAgent.SetReward(-1.0f);
+            sheepAgent.EndEpisode();
+
             return true;
         }
 
         List<GameObject> possibleMoves = wolfController.Square().GetComponent<SquareController>().PossibleWolfMoves();
         if (possibleMoves.Count == 0) {
             winner = Player.Sheep;
+
+            wolfAgent.SetReward(-1.0f);
+            wolfAgent.EndEpisode();
+
+            sheepAgent.SetReward(1.0f);
+            sheepAgent.EndEpisode();
+
             return true;
         }
 
+        if (!SheepCanMove()) {
+            // sheep can't move, but wolf hasn't made it to the end yet
+            winner = Player.Wolf;
+
+            wolfAgent.SetReward(1.0f);
+            wolfAgent.EndEpisode();
+
+            sheepAgent.SetReward(-1.0f);
+            sheepAgent.EndEpisode();
+
+            return true;
+        }
+
+        return false;
+    }
+
+    public bool SheepCanMove() {
+        List<GameObject> perSheepAllowedMoves = new List<GameObject>();
+
+        for (int i = 0; i < GameManager.Instance.sheep.Length; i++) {
+            // grab the sheep controller
+            SheepController sheep = GameManager.Instance.sheep[i].GetComponent<SheepController>();
+            SquareController square = sheep.Square().GetComponent<SquareController>();
+
+            perSheepAllowedMoves = square.PossibleSheepMoves();
+            if (perSheepAllowedMoves.Count > 0) {
+                return true;
+            }
+        }
         return false;
     }
 
