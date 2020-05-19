@@ -51,6 +51,7 @@ public class WolfAgent : Agent {
         //}
 
         wolfSquareController = wolf.Square().GetComponent<SquareController>();
+        Debug.Log($"[wolf] Wolf at: {wolfSquareController}");
 
         // 1 branch, 4 options = 4 movement directions
         int movement = Mathf.FloorToInt(branches[0]);

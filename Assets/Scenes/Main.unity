@@ -1659,6 +1659,10 @@ MonoBehaviour:
   wolfNextMove: {fileID: 0}
   sheepNext: {fileID: 0}
   sheepNextMove: {fileID: 0}
+  wolfGamesWon: {fileID: 25594486}
+  sheepGamesWon: {fileID: 1161492579}
+  wolfWon: 0
+  sheepWon: 0
   sheep:
   - {fileID: 983364650}
   - {fileID: 2050534175}

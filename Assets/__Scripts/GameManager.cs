@@ -72,49 +72,56 @@ public class GameManager : Singleton<GameManager> {
 
     void Update() {
 
-        if (Turn == Player.Sheep) {
-            if (!sheepNext || !sheepNextMove) {
+        switch (Turn) {
+            case Player.Sheep:
+                if (!sheepNext || !sheepNextMove) {
+                    // Collects observations and gets an action
+                    // this sets sheepNext and sheepNextMove
+                    sheepAgent.RequestDecision();
+                    // execute decision
+                    Academy.Instance.EnvironmentStep();
+                } else {
+                    Select(sheepNext);
+                    HightlightNextPossibleMove(sheepNext);
+                    sheepNext.GetComponent<SheepController>().HighLight();
+
+                    if (SheepMovePossible(sheepNext, sheepNextMove)) {
+                        SheepMoveTo(sheepNext, sheepNextMove);
+                        sheepNextMove = null;
+                        sheepNext = null;
+                        turn = Player.Wolf;
+                        UnSelect();
+                    }
+                }
+                break;
+
+            case Player.Wolf:
+                Select(wolf);
+                HightlightNextPossibleMove(wolf);
+
+                wolf.GetComponent<WolfController>().HighLight();
+
                 // Collects observations and gets an action
-                // this sets sheepNext and sheepNextMove
-                sheepAgent.RequestDecision();
+                wolfAgent.RequestDecision();
                 // execute decision
                 Academy.Instance.EnvironmentStep();
-            } else {
-                Select(sheepNext);
-                HightlightNextPossibleMove(sheepNext);
-                sheepNext.GetComponent<SheepController>().HighLight();
 
-                if (SheepMovePossible(sheepNext, sheepNextMove)) {
-                    SheepMoveTo(sheepNext, sheepNextMove);
-                    sheepNextMove = null;
-                    sheepNext = null;
-                    turn = Player.Wolf;
+                if (WolfMovePossible(wolfNextMove)) {
+                    WolfMoveTo(wolfNextMove);
+                    wolfNextMove = null;
+                    turn = Player.Sheep;
                     UnSelect();
+                } else {
+                    // wolf can't move
+
                 }
-            }
+                break;
+
+            default:
+                throw new Exception(String.Format("Unknown state: {0}", Turn));
+
         }
 
-        if (Turn == Player.Wolf) {
-            Select(wolf);
-            HightlightNextPossibleMove(wolf);
-
-            wolf.GetComponent<WolfController>().HighLight();
-
-            // Collects observations and gets an action
-            wolfAgent.RequestDecision();
-            // execute decision
-            Academy.Instance.EnvironmentStep();
-
-            if (WolfMovePossible(wolfNextMove)) {
-                WolfMoveTo(wolfNextMove);
-                wolfNextMove = null;
-                turn = Player.Sheep;
-                UnSelect();
-            } else {
-                // wolf can't move
-
-            }
-        }
 
         if (HaveWinner()) {
             winningText.SetText($"The winner is: {winner.ToString()}");
@@ -305,9 +312,12 @@ public class GameManager : Singleton<GameManager> {
     }
 
     public bool HaveWinner() {
+        Debug.Log("Checking winner...");
         WolfController wolfController = wolf.GetComponent<WolfController>();
 
+        // Wolf made it to the end
         if (wolfController.Square().GetComponent<SquareController>().row == 0) {
+            Debug.Log("[manager] Wolf won!");
             winner = Player.Wolf;
 
             wolfAgent.SetReward(1.0f);
@@ -316,11 +326,17 @@ public class GameManager : Singleton<GameManager> {
             sheepAgent.SetReward(-1.0f);
             sheepAgent.EndEpisode();
 
+            wolfWon++;
+
             return true;
         }
 
+        // Wolf can't move
+        Debug.Log($"[manager] wolf at {wolfController.Square().GetComponent<SquareController>()}");
         List<GameObject> possibleMoves = wolfController.Square().GetComponent<SquareController>().PossibleWolfMoves();
+        Debug.Log($"[manager] wolf possible moves: {possibleMoves.Count}");
         if (possibleMoves.Count == 0) {
+            Debug.Log("[manager] Sheep won!");
             winner = Player.Sheep;
 
             wolfAgent.SetReward(-1.0f);
@@ -329,11 +345,15 @@ public class GameManager : Singleton<GameManager> {
             sheepAgent.SetReward(1.0f);
             sheepAgent.EndEpisode();
 
+            sheepWon++;
+
             return true;
         }
 
+        // sheep can't move, but wolf hasn't made it to the end yet
+        // this happens because the wolf can move randomly
         if (!SheepCanMove()) {
-            // sheep can't move, but wolf hasn't made it to the end yet
+            Debug.Log("[manager] Sheep won (by default)!");
             winner = Player.Wolf;
 
             wolfAgent.SetReward(1.0f);
@@ -341,6 +361,8 @@ public class GameManager : Singleton<GameManager> {
 
             sheepAgent.SetReward(-1.0f);
             sheepAgent.EndEpisode();
+
+            wolfWon++;
 
             return true;
         }

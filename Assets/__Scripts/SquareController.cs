@@ -90,7 +90,7 @@ public class SquareController : MonoBehaviour, IPointerClickHandler {
     public List<bool> PossibleWolfMovesDir() {
         List<bool> moves = new List<bool> { };
 
-        // wolf moves forward back backwards
+        // wolf moves forward and backwards
         foreach (int nextRow in new int[] { row - 1, row + 1 }) {
             foreach (int nextCol in new int[] { column - 1, column + 1 }) {
 
