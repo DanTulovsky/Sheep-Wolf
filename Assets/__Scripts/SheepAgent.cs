@@ -153,10 +153,7 @@ public class SheepAgent : Agent {
             Debug.Log("Failed to find a sheep that can move!");
             sheep = null;
         }
-        Debug.Log($"[sheep] Sheep index picked: {returnIndex}");
         return returnIndex;
-
-
     }
 
     public override void Heuristic(float[] actionsOut) {
@@ -166,7 +163,9 @@ public class SheepAgent : Agent {
         // pick random sheep that can move
         SheepController shController;
         int sheepIndex = randomSheepWithMoves(out shController);
+
         if (!shController) { return; };
+        Debug.Log($"[sheep] Sheep index picked: {sheepIndex}");
 
         actionsOut[0] = sheepIndex;  // this is the random sheep
 
@@ -184,15 +183,19 @@ public class SheepAgent : Agent {
 
 
         int matched = 0;
+        int moveIndex = 0;
+
         for (int i = 0; i < possibleMoves.Count; i++) {
             if (possibleMoves[i]) {
                 matched++;
 
                 if (Random.value < 1 / matched) {
-                    actionsOut[1] = i;
+                    moveIndex = i;
                 }
             }
         }
-        Debug.Log($"[sheep] heuristic says: {actionsOut[1]} (out of {possibleMoves.Count} possible moves");
+
+        actionsOut[0] = sheepIndex + moveIndex;
+        Debug.Log($"[sheep] heuristic says: {actionsOut[0]} (out of {possibleMoves.Count} possible moves");
     }
 }
