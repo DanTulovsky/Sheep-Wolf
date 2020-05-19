@@ -49,6 +49,7 @@ public class WolfAgent : Agent {
         Debug.Log($"[wolf] action received: {branches}");
         if (!haveObservation) {
             Debug.Log("[wolf] No observation, not taking action!");
+            return;
         }
 
         wolfSquareController = wolf.Square().GetComponent<SquareController>();

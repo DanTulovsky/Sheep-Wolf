@@ -10,6 +10,9 @@ public class SheepAgent : Agent {
     SquareController wolfSquareController;
     SquareController shpSquareController;
 
+    // After a reset, there is sometimes another action that gets sent in
+    // But the observation is pre-reset, so it's invalid
+    // Workaround that by keeping track of observations.
     private bool haveObservation;
 
     public override void OnEpisodeBegin() {
@@ -44,6 +47,7 @@ public class SheepAgent : Agent {
         Debug.Log($"[sheep] action received: {branches}");
         if (!haveObservation) {
             Debug.Log("[sheep] No observation, not taking action!");
+            return;
         }
 
         // 1 branch
