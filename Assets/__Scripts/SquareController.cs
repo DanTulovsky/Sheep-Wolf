@@ -3,7 +3,7 @@ using UnityEngine.EventSystems;
 using UnityEngine;
 
 public class SquareController : MonoBehaviour, IPointerClickHandler {
-    private GameObject occupant;
+    public GameObject occupant;
     private Outline outline;
     private bool isSelected;
 
@@ -121,7 +121,7 @@ public class SquareController : MonoBehaviour, IPointerClickHandler {
     public List<bool> PossibleSheepMovesDir() {
         List<bool> moves = new List<bool> { };
 
-        int nextRow = 1;
+        int nextRow = row + 1;
 
         // sheep can only move forward
         foreach (int nextCol in new int[] { column - 1, column + 1 }) {
@@ -132,7 +132,10 @@ public class SquareController : MonoBehaviour, IPointerClickHandler {
             if (nextCol >= GameManager.Instance.maxRowCol) { moves.Add(false); continue; }
             if (nextCol < 0) { moves.Add(false); continue; };
 
-            if (!GameManager.Instance.squares[nextCol, nextRow].GetComponent<SquareController>().IsOccupied()) {
+            var square = GameManager.Instance.squares[nextCol, nextRow].GetComponent<SquareController>();
+            Debug.Log($">> square: {square}, is occupied? {square.IsOccupied()}");
+
+            if (!square.IsOccupied()) {
                 moves.Add(true);
             } else {
                 moves.Add(false);
@@ -156,14 +159,20 @@ public class SquareController : MonoBehaviour, IPointerClickHandler {
         }
 
         if (column - 1 >= 0) {
-            if (!GameManager.Instance.squares[column - 1, nextRow].GetComponent<SquareController>().IsOccupied()) {
-                moves.Add(GameManager.Instance.squares[column - 1, nextRow]);
+            var square = GameManager.Instance.squares[column - 1, nextRow].GetComponent<SquareController>();
+            //Debug.Log($"square: {square}, is occupied? {square.IsOccupied()}");
+
+            if (!square.IsOccupied()) {
+                moves.Add(square.gameObject);
             }
         }
 
         if (column + 1 < GameManager.Instance.maxRowCol) {
-            if (!GameManager.Instance.squares[column + 1, nextRow].GetComponent<SquareController>().IsOccupied()) {
-                moves.Add(GameManager.Instance.squares[column + 1, nextRow]);
+            var square = GameManager.Instance.squares[column + 1, nextRow].GetComponent<SquareController>();
+            //Debug.Log($"square: {square}, is occupied? {square.IsOccupied()}");
+
+            if (!square.IsOccupied()) {
+                moves.Add(square.gameObject);
             }
         }
 

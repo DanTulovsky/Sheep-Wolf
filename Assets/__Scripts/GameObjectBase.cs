@@ -7,7 +7,7 @@ public class GameObjectBase : MonoBehaviour {
     private Outline outline;
     private bool isSelected;
 
-    private GameObject square;
+    public GameObject square;
 
     protected virtual void Start() {
 
@@ -65,6 +65,10 @@ public class GameObjectBase : MonoBehaviour {
 
     public bool IsSelected() {
         return isSelected == true;
+    }
+
+    public override string ToString() {
+        return $"Object at: {square.GetComponent<SquareController>().column},{square.GetComponent<SquareController>().row}";
     }
 
 }

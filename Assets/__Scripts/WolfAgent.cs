@@ -38,18 +38,6 @@ public class WolfAgent : Agent {
 
 
     public override void OnActionReceived(float[] branches) {
-        if (GameManager.Instance.winner == Player.Wolf) {
-            SetReward(1.0f);
-            Debug.Log("[wolf] Ending episode, wolf won...");
-            EndEpisode();
-            return;
-        } else if (GameManager.Instance.winner == Player.Sheep) {
-            SetReward(-1.0f);
-            Debug.Log("[wolf] Ending episode, sheep won...");
-            EndEpisode();
-            return;
-        }
-
         Debug.Log($"[wolf] action received: {branches}");
 
         wolfSquareController = wolf.Square().GetComponent<SquareController>();
@@ -58,8 +46,6 @@ public class WolfAgent : Agent {
         int movement = Mathf.FloorToInt(branches[0]);
         Debug.Log($"[wolf] movement: {movement}");
         int row = 0, col = 0;
-
-        //List<bool> possibleMoves = wolfSquareController.PossibleWolfMovesDir();
 
         if (movement == 0) { row = -1; col = -1; };
         if (movement == 1) { row = -1; col = 1; }
@@ -73,6 +59,13 @@ public class WolfAgent : Agent {
         Debug.Log($"[wolf] Wolf at: {wolfSquareController.ToString()}");
         Debug.Log($"[wolf] Wolf will move to: {nextSquare.GetComponent<SquareController>().ToString()}");
         GameManager.Instance.wolfNextMove = nextSquare;
+
+        // Check if the wolf is on the 0th row
+        if (nextSquare.GetComponent<SquareController>().row == 0) {
+            SetReward(1.0f);
+            GameManager.Instance.wolfWon++;
+            EndEpisode();
+        }
     }
 
     // mask some moves as not possible
@@ -93,6 +86,14 @@ public class WolfAgent : Agent {
 
         }
 
+        // wolf is stuck, can't set mask that excludes all moves
+        if (notAllowed.Count == 4) {
+            SetReward(-1.0f);
+            EndEpisode();
+            GameManager.Instance.sheepWon++;
+            return;
+        };
+
         actionMasker.SetMask(0, notAllowed);
     }
 
@@ -100,29 +101,30 @@ public class WolfAgent : Agent {
         Debug.Log("[wolf] in heuristic");
         List<bool> possibleMoves = wolfSquareController.PossibleWolfMovesDir();
 
-        bool haveMove = false;
-        int tries = 0;
-
         for (int i = 0; i < possibleMoves.Count; i++) {
             bool m = possibleMoves[i];
             Debug.Log($"[wolf] index: {i}; value: {m}");
         }
 
-        while (!haveMove) {
-            if (tries > 20) {
-                Debug.Log("[wolf] Failed to find wolf move in 20 tries...");
-                return;
-            }
-            for (int i = 0; i < possibleMoves.Count; i++) {
-                //if (possibleMoves[i] && Random.Range(0, 1) > 0.5) {
-                if (possibleMoves[i]) {
-                    Debug.Log($"[wolf] heuristic says: {i} (out of {possibleMoves.Count} possible moves");
-                    actionsOut[0] = i;
-                    haveMove = true;
-                    break;
+        int matched = 0;
+        int moveIndex = 0;
+
+        for (int i = 0; i < possibleMoves.Count; i++) {
+            if (possibleMoves[i]) {
+                matched++;
+
+                if (Random.value < 1 / matched) {
+                    moveIndex = i;
                 }
-                tries++;
             }
         }
+
+        if (matched == 0) {
+            // no possible moves left
+            Debug.Log("[wolf] Heuristic failed to find possible wolf moves.");
+        }
+
+        actionsOut[0] = moveIndex;
+        Debug.Log($"[wolf] heuristic says: {actionsOut[0]} (out of {possibleMoves.Count} possible moves");
     }
 }
