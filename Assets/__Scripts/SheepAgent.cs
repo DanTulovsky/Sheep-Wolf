@@ -96,7 +96,6 @@ public class SheepAgent : Agent {
     // mask some moves as not possible
     public override void CollectDiscreteActionMasks(DiscreteActionMasker actionMasker) {
         Debug.Log("[sheep] Calculating mask...");
-        if (!GameManager.Instance.sheepNext || !GameManager.Instance.sheepNextMove) { return; };
 
         // contains the list of disallowed sheep/moves by number (see: OnActionReceived)
         List<int> notAllowed = new List<int>();
@@ -116,10 +115,25 @@ public class SheepAgent : Agent {
             // for any false, add the index (or index+1) into notAllowed list
             for (int j = 0; j < perSheepAllowedMoves.Count; j++) {
                 if (!perSheepAllowedMoves[j]) {
-                    notAllowed.Add(i + j);
+                    notAllowed.Add(2 * i + j);
                 }
             }
         }
+
+        Debug.Log($"[sheep] Not Allowed actions: ");
+        foreach (var i in notAllowed) {
+            Debug.Log($"  {i}");
+
+        }
+
+        // all sheep can't move, this happens if they get to the other side
+        // but the wolf has not yet made it to the end (which can happen with random movements)
+        if (notAllowed.Count == 8) { // 8 sheep * 2 moves each
+            SetReward(-1.0f);
+            EndEpisode();
+            GameManager.Instance.wolfWon++;
+            return;
+        };
 
         actionMasker.SetMask(0, notAllowed);
     }
@@ -170,8 +184,6 @@ public class SheepAgent : Agent {
         if (!shController) { return; };
         Debug.Log($"[sheep] Sheep index (in sheep list) picked: {sheepIndex}");
         Debug.Log($"[sheep] Sheep is at: {GameManager.Instance.sheep[sheepIndex].GetComponent<SheepController>()}");
-
-        //actionsOut[0] = sheepIndex;  // this is the random sheep
 
         SquareController sheepSquareController = shController.Square().GetComponent<SquareController>();
 
