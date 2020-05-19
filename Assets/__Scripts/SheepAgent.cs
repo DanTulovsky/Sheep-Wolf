@@ -133,6 +133,8 @@ public class SheepAgent : Agent {
             EndEpisode();
             GameManager.Instance.wolfWon++;
             GameManager.Instance.winner = Player.Wolf;
+            // let the wolf check one more time so it picks up the fact that it won
+            GameManager.Instance.Turn = Player.Wolf;
             return;
         };
 
