@@ -151,6 +151,9 @@ public class GameManager : Singleton<GameManager> {
         winningText.enabled = false;
         winner = Player.None;
         Turn = Player.Sheep;
+
+        wolfAgent.Initialize();
+        sheepAgent.Initialize();
     }
 
     // Reset squares after episode
@@ -332,9 +335,7 @@ public class GameManager : Singleton<GameManager> {
         }
 
         // Wolf can't move
-        Debug.Log($"[manager] wolf at {wolfController.Square().GetComponent<SquareController>()}");
         List<GameObject> possibleMoves = wolfController.Square().GetComponent<SquareController>().PossibleWolfMoves();
-        Debug.Log($"[manager] wolf possible moves: {possibleMoves.Count}");
         if (possibleMoves.Count == 0) {
             Debug.Log("[manager] Sheep won!");
             winner = Player.Sheep;

@@ -92,21 +92,17 @@ public class WolfAgent : Agent {
                 notAllowed.Add(i); // add the movement number that is not allowed
             }
         }
-        Debug.Log($"[wolf] Not Allowed actions: ");
-        foreach (var i in notAllowed) {
-            Debug.Log($"  {i}");
 
-        }
+        //Debug.Log($"[wolf] Not Allowed actions: ");
+        //foreach (var i in notAllowed) {
+        //    Debug.Log($"  {i}");
+        //}
 
         // wolf is stuck, can't set mask that excludes all moves
-        if (notAllowed.Count == 4) {
-            Debug.Log("[wolf] Stuck, nowere to move.");
-            //SetReward(-1.0f);
-            //EndEpisode();
-            //GameManager.Instance.sheepWon++;
-            //GameManager.Instance.winner = Player.Sheep;
-            return;
-        };
+        //if (notAllowed.Count == 4) {
+        //    Debug.Log("[wolf] Stuck, nowere to move.");
+        //    return;
+        //};
 
         actionMasker.SetMask(0, notAllowed);
     }

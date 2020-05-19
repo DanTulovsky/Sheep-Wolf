@@ -156,12 +156,13 @@ public class SheepAgent : Agent {
             }
         }
 
-        if (match != null) {
-            sheep = match.GetComponent<SheepController>();
-        } else {
-            Debug.Log("Failed to find a sheep that can move!");
-            sheep = null;
-        }
+        sheep = match.GetComponent<SheepController>();
+        //if (match != null) {
+        //    sheep = match.GetComponent<SheepController>();
+        //} else {
+        //    Debug.Log("Failed to find a sheep that can move!");
+        //    sheep = null;
+        //}
         return returnIndex;
     }
 
