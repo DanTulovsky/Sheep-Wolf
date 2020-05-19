@@ -13,11 +13,16 @@ public enum Player {
     Sheep
 }
 
+public enum Controller {
+    None,
+    Human,
+    AI
+}
+
 public class GameManager : Singleton<GameManager> {
     private Player turn = Player.Sheep;
     private StatsRecorder statsRecorder;
 
-    public GameObject selectedObject;
     public Player Turn { get => turn; set => turn = value; }
 
     public Agent wolfAgent;
@@ -28,11 +33,13 @@ public class GameManager : Singleton<GameManager> {
     public GameObject sheepNext;
     public GameObject sheepNextMove;
 
-    public TMP_Text wolfGamesWon;
-    public TMP_Text sheepGamesWon;
+    public TMP_Text wolfGamesWonText;
+    public TMP_Text sheepGamesWonText;
+    public TMP_Text tieText;
 
     public int wolfWon;
     public int sheepWon;
+    public int tie;
 
     public GameObject[] sheep;
     public GameObject wolf;
@@ -45,7 +52,7 @@ public class GameManager : Singleton<GameManager> {
     public TMP_Text whoseTurnText;
     public TMP_Text winningText;
 
-    public float animationDelay = 0.1f;
+    //public float animationDelay = 0.1f;
 
     [Header("Game Settings")]
     [Tooltip("Number of rows")]
@@ -68,13 +75,11 @@ public class GameManager : Singleton<GameManager> {
 
         //ResetGame();
         Academy.Instance.EnvironmentStep();
-
-        // calculates the wolf's move when it's the wolf's turn
-        //StartCoroutine(CalculateWolfMove());
-        //StartCoroutine(CalculateSheepMove());
     }
 
     void Update() {
+
+        //if (!((Time.frameCount % 100) == 0)) { return; };
 
         if (HaveWinner()) {
             winningText.SetText($"The winner is: {winner.ToString()}");
@@ -93,21 +98,23 @@ public class GameManager : Singleton<GameManager> {
                 // execute decision
                 Academy.Instance.EnvironmentStep();
 
-                Select(sheepNext);
-                HightlightNextPossibleMove(sheepNext);
-                sheepNext.GetComponent<SheepController>().HighLight();
+                if (sheepNext && sheepNextMove) {
+                    //Select(sheepNext);
+                    HightlightNextPossibleMove(sheepNext);
+                    sheepNext.GetComponent<SheepController>().HighLight();
 
-                if (SheepMovePossible(sheepNext, sheepNextMove)) {
-                    SheepMoveTo(sheepNext, sheepNextMove);
-                    sheepNextMove = null;
-                    sheepNext = null;
-                    turn = Player.Wolf;
-                    UnSelect();
+                    if (SheepMovePossible(sheepNext, sheepNextMove)) {
+                        SheepMoveTo(sheepNext, sheepNextMove);
+                        sheepNextMove = null;
+                        sheepNext = null;
+                        turn = Player.Wolf;
+                        //UnSelect();
+                    }
                 }
                 break;
 
             case Player.Wolf:
-                Select(wolf);
+                //Select(wolf);
                 HightlightNextPossibleMove(wolf);
 
                 wolf.GetComponent<WolfController>().HighLight();
@@ -117,11 +124,13 @@ public class GameManager : Singleton<GameManager> {
                 // execute decision
                 Academy.Instance.EnvironmentStep();
 
-                if (WolfMovePossible(wolfNextMove)) {
-                    WolfMoveTo(wolfNextMove);
-                    wolfNextMove = null;
-                    turn = Player.Sheep;
-                    UnSelect();
+                if (wolfNextMove) {
+                    if (WolfMovePossible(wolfNextMove)) {
+                        WolfMoveTo(wolfNextMove);
+                        wolfNextMove = null;
+                        turn = Player.Sheep;
+                        //UnSelect();
+                    }
                 }
 
                 break;
@@ -131,8 +140,9 @@ public class GameManager : Singleton<GameManager> {
         }
 
         whoseTurnText.SetText(turn.ToString());
-        wolfGamesWon.SetText(wolfWon.ToString());
-        sheepGamesWon.SetText(sheepWon.ToString());
+        wolfGamesWonText.SetText(wolfWon.ToString());
+        sheepGamesWonText.SetText(sheepWon.ToString());
+        tieText.SetText(tie.ToString());
 
         // Send stats via SideChannel so that they'll appear in TensorBoard.
         // These values get averaged every summary_frequency steps, so we don't
@@ -184,6 +194,7 @@ public class GameManager : Singleton<GameManager> {
         for (int c = 0; c < columns; c++) {
             for (int r = 0; r < rows; r++) {
                 squares[c, r] = Instantiate(squarePrefab, SquareCenter(c, r), Quaternion.identity, gameBoard).gameObject;
+                squares[c, r].transform.localPosition = SquareCenter(c, r);
                 SquareController squareC = squares[c, r].GetComponent<SquareController>();
 
                 squareC.column = c;
@@ -228,12 +239,11 @@ public class GameManager : Singleton<GameManager> {
     }
 
     public void Select(GameObject obj) {
-        selectedObject = obj;
-        //HightlightNextPossibleMove(selectedObject);
+        //selectedObject = obj;
     }
 
     public void UnSelect() {
-        selectedObject = null;
+        //selectedObject = null;
     }
 
     public void HightlightNextPossibleMove(GameObject obj) {
@@ -263,11 +273,6 @@ public class GameManager : Singleton<GameManager> {
 
             RemoveSquareHighlights();
             RemoveObjectHighlights();
-
-            Turn = Player.Wolf;
-        } else {
-            Debug.Log($"[sheep] {selectedObject.GetComponent<SheepController>()} not able to move to: {to.GetComponent<SquareController>()}");
-            Application.Quit(1);
         }
     }
 
@@ -303,10 +308,7 @@ public class GameManager : Singleton<GameManager> {
 
             RemoveSquareHighlights();
             RemoveObjectHighlights();
-
-            Turn = Player.Sheep;
         }
-
     }
 
     public bool WolfMovePossible(GameObject to) {
@@ -362,17 +364,18 @@ public class GameManager : Singleton<GameManager> {
 
         // sheep can't move, but wolf hasn't made it to the end yet
         // this happens because the wolf can move randomly
+        // treat this as a tie
         if (!SheepCanMove()) {
             Debug.Log(">>>>>>>>>>>>>>>>>>>>>>>>>>  [manager] Sheep won (by default)!");
-            winner = Player.Wolf;
+            winner = Player.None;
 
-            wolfAgent.SetReward(1.0f);
+            wolfAgent.SetReward(0.0f);
             wolfAgent.EndEpisode();
 
-            sheepAgent.SetReward(-1.0f);
+            sheepAgent.SetReward(0.0f);
             sheepAgent.EndEpisode();
 
-            wolfWon++;
+            tie++;
 
             return true;
         }

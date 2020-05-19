@@ -198,7 +198,7 @@ public class SquareController : MonoBehaviour, IPointerClickHandler {
 
         switch (eventData.button) {
             case PointerEventData.InputButton.Left:
-                if (!GameManager.Instance.selectedObject) { return; };
+                //if (!GameManager.Instance.selectedObject) { return; };
 
                 if (GameManager.Instance.Turn == Player.Wolf) {
                     GameManager.Instance.wolfNextMove = gameObject;
