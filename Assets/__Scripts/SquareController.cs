@@ -8,8 +8,8 @@ public class SquareController : MonoBehaviour, IPointerClickHandler {
     private bool isSelected;
 
     public Color color;
-    public int column;
-    public int row;
+    public float column;
+    public float row;
 
     // Start is called before the first frame update
     void Start() {

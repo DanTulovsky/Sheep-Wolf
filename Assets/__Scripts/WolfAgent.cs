@@ -1,7 +1,5 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.InputSystem;
 using Unity.MLAgents;
 using Unity.MLAgents.Sensors;
 
@@ -25,20 +23,20 @@ public class WolfAgent : Agent {
         Debug.Log("[wolf] Observing...");
 
         // space size: 10
-
+        // TODO: Normalize all observations! Should be betwee -1 and 1
         // current positions: 2
         wolfSquareController = wolf.Square().GetComponent<SquareController>();
 
-        sensor.AddObservation(wolfSquareController.column);
-        sensor.AddObservation(wolfSquareController.row);
+        sensor.AddObservation(wolfSquareController.column / GameManager.Instance.maxRowCol);
+        sensor.AddObservation(wolfSquareController.row / GameManager.Instance.maxRowCol);
 
         // position of the sheep: 4 x (1+1) = 8
         foreach (GameObject shp in GameManager.Instance.sheep) {
             SheepController shpController = shp.GetComponent<SheepController>();
             shpSquareController = shpController.Square().GetComponent<SquareController>();
 
-            sensor.AddObservation(shpSquareController.column);
-            sensor.AddObservation(shpSquareController.row);
+            sensor.AddObservation(shpSquareController.column / GameManager.Instance.maxRowCol);
+            sensor.AddObservation(shpSquareController.row / GameManager.Instance.maxRowCol);
         }
 
         haveObservation = true;

@@ -44,8 +44,8 @@ public class GameManager : Singleton<GameManager> {
     public GameObject[] sheep;
     public GameObject wolf;
     public GameObject[,] squares;
-    public int minRowCol = 8; // minimum number of rows or columns
-    public int maxRowCol = 8;
+    public float minRowCol = 8; // minimum number of rows or columns
+    public float maxRowCol = 8;
 
     public Transform gameBoard;
     public Transform squarePrefab;
@@ -67,6 +67,9 @@ public class GameManager : Singleton<GameManager> {
         Academy.Instance.OnEnvironmentReset += ResetGame;
         statsRecorder = Academy.Instance.StatsRecorder;
     }
+
+    public int wolfSteps;
+    public int sheepSteps;
 
     // Start is called before the first frame update
     void Start() {
@@ -97,6 +100,7 @@ public class GameManager : Singleton<GameManager> {
                 sheepAgent.RequestDecision();
                 // execute decision
                 Academy.Instance.EnvironmentStep();
+                sheepSteps++;
 
                 if (sheepNext && sheepNextMove) {
                     //Select(sheepNext);
@@ -123,6 +127,7 @@ public class GameManager : Singleton<GameManager> {
                 wolfAgent.RequestDecision();
                 // execute decision
                 Academy.Instance.EnvironmentStep();
+                wolfSteps++;
 
                 if (wolfNextMove) {
                     if (WolfMovePossible(wolfNextMove)) {
@@ -326,7 +331,7 @@ public class GameManager : Singleton<GameManager> {
     }
 
     public bool HaveWinner() {
-        Debug.Log("Checking winner...");
+        //Debug.Log("Checking winner...");
         WolfController wolfController = wolf.GetComponent<WolfController>();
 
         // Wolf made it to the end
