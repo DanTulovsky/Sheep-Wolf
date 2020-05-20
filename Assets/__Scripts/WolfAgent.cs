@@ -5,6 +5,8 @@ using Unity.MLAgents.Sensors;
 
 public class WolfAgent : Agent {
 
+    public SingleGameManager gameManager;
+
     public WolfController wolf;
     SquareController shpSquareController;
     SquareController wolfSquareController;
@@ -23,20 +25,20 @@ public class WolfAgent : Agent {
         Debug.Log("[wolf] Observing...");
 
         // space size: 10
-        // TODO: Normalize all observations! Should be betwee -1 and 1
+        // TODO: Normalize all observations! Should be between -1 and 1
         // current positions: 2
         wolfSquareController = wolf.Square().GetComponent<SquareController>();
 
-        sensor.AddObservation(wolfSquareController.column / (float)GameManager.Instance.maxRowCol);
-        sensor.AddObservation(wolfSquareController.row / (float)GameManager.Instance.maxRowCol);
+        sensor.AddObservation(wolfSquareController.column / (float)gameManager.maxRowCol);
+        sensor.AddObservation(wolfSquareController.row / (float)gameManager.maxRowCol);
 
         // position of the sheep: 4 x (1+1) = 8
-        foreach (GameObject shp in GameManager.Instance.sheep) {
+        foreach (GameObject shp in gameManager.sheep) {
             SheepController shpController = shp.GetComponent<SheepController>();
             shpSquareController = shpController.Square().GetComponent<SquareController>();
 
-            sensor.AddObservation(shpSquareController.column / (float)GameManager.Instance.maxRowCol);
-            sensor.AddObservation(shpSquareController.row / (float)GameManager.Instance.maxRowCol);
+            sensor.AddObservation(shpSquareController.column / (float)gameManager.maxRowCol);
+            sensor.AddObservation(shpSquareController.row / (float)gameManager.maxRowCol);
         }
 
         haveObservation = true;
@@ -66,16 +68,16 @@ public class WolfAgent : Agent {
         int nextRow = wolfSquareController.row + row;
         int nextCol = wolfSquareController.column + col;
 
-        GameObject nextSquare = GameManager.Instance.squares[nextCol, nextRow];
+        GameObject nextSquare = gameManager.squares[nextCol, nextRow];
         Debug.Log($"[wolf] Wolf at: {wolfSquareController.ToString()}");
         Debug.Log($"[wolf] Wolf will move to: {nextSquare.GetComponent<SquareController>().ToString()}");
-        GameManager.Instance.wolfNextMove = nextSquare;
+        gameManager.wolfNextMove = nextSquare;
 
         // Check if the wolf is on the 0th row
         //if (nextSquare.GetComponent<SquareController>().row == 0) {
         //    SetReward(1.0f);
-        //    GameManager.Instance.wolfWon++;
-        //    GameManager.Instance.winner = Player.Wolf;
+        //    gameManager.wolfWon++;
+        //    gameManager.winner = Player.Wolf;
         //    EndEpisode();
         //}
     }

@@ -6,6 +6,8 @@ using Unity.MLAgents.Sensors;
 
 public class SheepAgent : Agent {
 
+    public SingleGameManager gameManager;
+
     public WolfController wolf;
     SquareController wolfSquareController;
     SquareController shpSquareController;
@@ -28,16 +30,16 @@ public class SheepAgent : Agent {
         // current positions: 2
         wolfSquareController = wolf.Square().GetComponent<SquareController>();
 
-        sensor.AddObservation(wolfSquareController.column / (float)GameManager.Instance.maxRowCol);
-        sensor.AddObservation(wolfSquareController.row / (float)GameManager.Instance.maxRowCol);
+        sensor.AddObservation(wolfSquareController.column / (float)gameManager.maxRowCol);
+        sensor.AddObservation(wolfSquareController.row / (float)gameManager.maxRowCol);
 
         // position of the sheep: 4 x (1+1) = 8
-        foreach (GameObject shp in GameManager.Instance.sheep) {
+        foreach (GameObject shp in gameManager.sheep) {
             SheepController shpController = shp.GetComponent<SheepController>();
             shpSquareController = shpController.Square().GetComponent<SquareController>();
 
-            sensor.AddObservation(shpSquareController.column / (float)GameManager.Instance.maxRowCol);
-            sensor.AddObservation(shpSquareController.row / (float)GameManager.Instance.maxRowCol);
+            sensor.AddObservation(shpSquareController.column / (float)gameManager.maxRowCol);
+            sensor.AddObservation(shpSquareController.row / (float)gameManager.maxRowCol);
         }
 
         haveObservation = true;
@@ -76,8 +78,8 @@ public class SheepAgent : Agent {
         if (selection == 7) { sheep = 3; row = 1; col = 1; };
 
         // which sheep
-        GameManager.Instance.sheepNext = GameManager.Instance.sheep[sheep];
-        SheepController shController = GameManager.Instance.sheep[sheep].GetComponent<SheepController>();
+        gameManager.sheepNext = gameManager.sheep[sheep];
+        SheepController shController = gameManager.sheep[sheep].GetComponent<SheepController>();
         SquareController squareController = shController.Square().GetComponent<SquareController>();
         Debug.Log($"[sheep] Sheep at: {shController.ToString()}");
 
@@ -88,9 +90,9 @@ public class SheepAgent : Agent {
         Debug.Log($"[sheep] nextRow: {nextRow}");
         Debug.Log($"[sheep] nextCol: {nextCol}");
 
-        GameObject nextSquare = GameManager.Instance.squares[nextCol, nextRow];
+        GameObject nextSquare = gameManager.squares[nextCol, nextRow];
         Debug.Log($"[sheep] Sheep will move to: {nextSquare.GetComponent<SquareController>().ToString()}");
-        GameManager.Instance.sheepNextMove = nextSquare;
+        gameManager.sheepNextMove = nextSquare;
     }
 
     // mask some moves as not possible
@@ -101,9 +103,9 @@ public class SheepAgent : Agent {
         List<int> notAllowed = new List<int>();
         List<bool> perSheepAllowedMoves = new List<bool>();
 
-        for (int i = 0; i < GameManager.Instance.sheep.Length; i++) {
+        for (int i = 0; i < gameManager.sheep.Length; i++) {
             // grab the sheep controller
-            SheepController sheep = GameManager.Instance.sheep[i].GetComponent<SheepController>();
+            SheepController sheep = gameManager.sheep[i].GetComponent<SheepController>();
             SquareController square = sheep.Square().GetComponent<SquareController>();
 
             // Get List<bool> of possible moves (true = allowed, false = not allowed)
@@ -131,11 +133,11 @@ public class SheepAgent : Agent {
         if (notAllowed.Count == 8) { // 8 sheep * 2 moves each
             //SetReward(-1.0f);
             //EndEpisode();
-            //GameManager.Instance.wolfWon++;
-            //GameManager.Instance.winner = Player.Wolf;
-            Debug.Log($"[sheep] stuck; setting wolf as winner: {GameManager.Instance.winner}");
+            //gameManager.wolfWon++;
+            //gameManager.winner = Player.Wolf;
+            Debug.Log($"[sheep] stuck; setting wolf as winner: {gameManager.winner}");
             // let the wolf check one more time so it picks up the fact that it won
-            //GameManager.Instance.Turn = Player.Wolf;
+            //gameManager.Turn = Player.Wolf;
             return;
         };
 
@@ -145,7 +147,7 @@ public class SheepAgent : Agent {
     // returns the index of a random sheep that can move
     // places the sheep itself into the sheep variable
     private int randomSheepWithMoves(out SheepController sheep) {
-        int numSheep = GameManager.Instance.sheep.Length;
+        int numSheep = gameManager.sheep.Length;
         SheepController shController;
         SquareController sqController;
 
@@ -153,8 +155,8 @@ public class SheepAgent : Agent {
         float matched = 0;
         int returnIndex = 0;
 
-        for (int i = 0; i < GameManager.Instance.sheep.Length; i++) {
-            GameObject sh = GameManager.Instance.sheep[i];
+        for (int i = 0; i < gameManager.sheep.Length; i++) {
+            GameObject sh = gameManager.sheep[i];
             shController = sh.GetComponent<SheepController>();
             sqController = shController.Square().GetComponent<SquareController>();
 
@@ -189,7 +191,7 @@ public class SheepAgent : Agent {
 
         if (!shController) { return; };
         Debug.Log($"[sheep] Sheep index (in sheep list) picked: {sheepIndex}");
-        Debug.Log($"[sheep] Sheep is at: {GameManager.Instance.sheep[sheepIndex].GetComponent<SheepController>()}");
+        Debug.Log($"[sheep] Sheep is at: {gameManager.sheep[sheepIndex].GetComponent<SheepController>()}");
 
         SquareController sheepSquareController = shController.Square().GetComponent<SquareController>();
 
@@ -217,6 +219,6 @@ public class SheepAgent : Agent {
         }
 
         actionsOut[0] = 2 * sheepIndex + moveIndex;
-        Debug.Log($"[sheep] heuristic says: {actionsOut[0]} (out of {possibleMoves.Count * GameManager.Instance.sheep.Length} possible moves");
+        Debug.Log($"[sheep] heuristic says: {actionsOut[0]} (out of {possibleMoves.Count * gameManager.sheep.Length} possible moves");
     }
 }

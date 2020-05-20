@@ -4,6 +4,8 @@ using UnityEngine.InputSystem;
 using UnityEngine;
 
 public class GameObjectBase : MonoBehaviour {
+    public SingleGameManager gameManager;
+
     private Outline outline;
     private bool isSelected;
 
@@ -34,13 +36,13 @@ public class GameObjectBase : MonoBehaviour {
         switch (eventData.button) {
             case PointerEventData.InputButton.Right:
                 HightLightRemoveAll();
-                GameManager.Instance.UnSelect();
+                gameManager.UnSelect();
                 break;
 
             case PointerEventData.InputButton.Left:
                 HightLightRemoveAll();
                 HighLight();
-                GameManager.Instance.Select(gameObject);
+                gameManager.Select(gameObject);
                 break;
         }
     }
@@ -55,7 +57,7 @@ public class GameObjectBase : MonoBehaviour {
     }
 
     private void HightLightRemoveAll() {
-        GameManager.Instance.RemoveSquareHighlights();
+        gameManager.RemoveSquareHighlights();
 
         foreach (var obj in GameObject.FindObjectsOfType<GameObjectBase>()) {
             obj.HighLightRemove();

@@ -18,7 +18,7 @@ public class SheepController : GameObjectBase, IPointerClickHandler {
     }
 
     void IPointerClickHandler.OnPointerClick(PointerEventData eventData) {
-        if (GameManager.Instance.Turn == Player.Sheep) {
+        if (gameManager.Turn == Player.Sheep) {
             base.OnPointerClick(eventData);
         }
     }
