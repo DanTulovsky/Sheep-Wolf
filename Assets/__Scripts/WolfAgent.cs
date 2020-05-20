@@ -27,16 +27,16 @@ public class WolfAgent : Agent {
         // current positions: 2
         wolfSquareController = wolf.Square().GetComponent<SquareController>();
 
-        sensor.AddObservation(wolfSquareController.column / GameManager.Instance.maxRowCol);
-        sensor.AddObservation(wolfSquareController.row / GameManager.Instance.maxRowCol);
+        sensor.AddObservation(wolfSquareController.column / (float)GameManager.Instance.maxRowCol);
+        sensor.AddObservation(wolfSquareController.row / (float)GameManager.Instance.maxRowCol);
 
         // position of the sheep: 4 x (1+1) = 8
         foreach (GameObject shp in GameManager.Instance.sheep) {
             SheepController shpController = shp.GetComponent<SheepController>();
             shpSquareController = shpController.Square().GetComponent<SquareController>();
 
-            sensor.AddObservation(shpSquareController.column / GameManager.Instance.maxRowCol);
-            sensor.AddObservation(shpSquareController.row / GameManager.Instance.maxRowCol);
+            sensor.AddObservation(shpSquareController.column / (float)GameManager.Instance.maxRowCol);
+            sensor.AddObservation(shpSquareController.row / (float)GameManager.Instance.maxRowCol);
         }
 
         haveObservation = true;
