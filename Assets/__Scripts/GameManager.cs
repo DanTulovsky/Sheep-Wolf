@@ -102,6 +102,10 @@ public class GameManager : Singleton<GameManager> {
                 Academy.Instance.EnvironmentStep();
                 sheepSteps++;
 
+                // Add penalty per step to encourage the seep to capture the wolf
+                float perStepSheepReward = -0.003f;
+                sheepAgent.AddReward(perStepSheepReward);
+
                 if (sheepNext && sheepNextMove) {
                     //Select(sheepNext);
                     HightlightNextPossibleMove(sheepNext);
@@ -128,6 +132,11 @@ public class GameManager : Singleton<GameManager> {
                 // execute decision
                 Academy.Instance.EnvironmentStep();
                 wolfSteps++;
+
+                // Add penalty per step to encourage the wolf to get to the end
+                float perStepWolfReward = -0.003f;
+                wolfAgent.AddReward(perStepWolfReward);
+
 
                 if (wolfNextMove) {
                     if (WolfMovePossible(wolfNextMove)) {
@@ -339,10 +348,10 @@ public class GameManager : Singleton<GameManager> {
             Debug.Log(">>>>>>>>>>>>>>>>>>>>>>>>>>  [manager] Wolf won!");
             winner = Player.Wolf;
 
-            wolfAgent.SetReward(1.0f);
+            wolfAgent.AddReward(1.0f);
             wolfAgent.EndEpisode();
 
-            sheepAgent.SetReward(-1.0f);
+            sheepAgent.AddReward(-1.0f);
             sheepAgent.EndEpisode();
 
             wolfWon++;
@@ -356,10 +365,10 @@ public class GameManager : Singleton<GameManager> {
             Debug.Log(">>>>>>>>>>>>>>>>>>>>>>>>>>  [manager] Sheep won!");
             winner = Player.Sheep;
 
-            wolfAgent.SetReward(-1.0f);
+            wolfAgent.AddReward(-1.0f);
             wolfAgent.EndEpisode();
 
-            sheepAgent.SetReward(1.0f);
+            sheepAgent.AddReward(1.0f);
             sheepAgent.EndEpisode();
 
             sheepWon++;
