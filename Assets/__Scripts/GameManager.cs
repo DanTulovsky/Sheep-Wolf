@@ -6,16 +6,23 @@ using TMPro;
 
 public class GameManager : Singleton<GameManager> {
 
-    public Transform trainingAreaPrefab;
-    public int numTrainingAreas = 1;
+    [Header("Training Settings")]
+    [SerializeField] private Transform trainingAreaPrefab;
+    [SerializeField] private int numTrainingAreas = 1;
 
-    public int wolfWon;
-    public int sheepWon;
-    public int tie;
+    [Tooltip("Number of rows")]
+    [Range(8, 16)] public int rows = 8;
+    [Tooltip("Number of columns")]
+    [Range(8, 16)] public int columns = 8;
 
-    public TMP_Text wolfGamesWonText;
-    public TMP_Text sheepGamesWonText;
-    public TMP_Text tieText;
+    [Header("Display Text")]
+    [SerializeField] private TMP_Text wolfGamesWonText;
+    [SerializeField] private TMP_Text sheepGamesWonText;
+    [SerializeField] private TMP_Text tieText;
+
+    private int wolfWon;
+    private int sheepWon;
+    private int tie;
 
     private List<SingleGameManager> traingingAreas = new List<SingleGameManager>();
     private StatsRecorder statsRecorder;
@@ -37,7 +44,7 @@ public class GameManager : Singleton<GameManager> {
             SingleGameManager sgm = ta.GetComponentInChildren<SingleGameManager>();
 
             // Disable per-game overlay in this training mode
-            sgm.statsOverlay.SetActive(false);
+            sgm.DisableStatsOverlay();
 
             traingingAreas.Add(sgm);
         }

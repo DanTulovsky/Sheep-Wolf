@@ -29,16 +29,16 @@ public class WolfAgent : Agent {
         // current positions: 2
         wolfSquareController = wolf.Square().GetComponent<SquareController>();
 
-        sensor.AddObservation(wolfSquareController.column / (float)gameManager.maxRowCol);
-        sensor.AddObservation(wolfSquareController.row / (float)gameManager.maxRowCol);
+        sensor.AddObservation(wolfSquareController.column / (float)gameManager.columns);
+        sensor.AddObservation(wolfSquareController.row / (float)gameManager.rows);
 
         // position of the sheep: 4 x (1+1) = 8
         foreach (SheepController shp in gameManager.sheep) {
             SheepController shpController = shp.GetComponent<SheepController>();
             shpSquareController = shpController.Square().GetComponent<SquareController>();
 
-            sensor.AddObservation(shpSquareController.column / (float)gameManager.maxRowCol);
-            sensor.AddObservation(shpSquareController.row / (float)gameManager.maxRowCol);
+            sensor.AddObservation(shpSquareController.column / (float)gameManager.columns);
+            sensor.AddObservation(shpSquareController.row / (float)gameManager.rows);
         }
 
         haveObservation = true;
@@ -73,13 +73,6 @@ public class WolfAgent : Agent {
         Debug.Log($"[wolf] Wolf will move to: {nextSquare.GetComponent<SquareController>().ToString()}");
         gameManager.wolfNextMove = nextSquare;
 
-        // Check if the wolf is on the 0th row
-        //if (nextSquare.GetComponent<SquareController>().row == 0) {
-        //    SetReward(1.0f);
-        //    gameManager.wolfWon++;
-        //    gameManager.winner = Player.Wolf;
-        //    EndEpisode();
-        //}
     }
 
     // mask some moves as not possible
@@ -94,17 +87,6 @@ public class WolfAgent : Agent {
                 notAllowed.Add(i); // add the movement number that is not allowed
             }
         }
-
-        //Debug.Log($"[wolf] Not Allowed actions: ");
-        //foreach (var i in notAllowed) {
-        //    Debug.Log($"  {i}");
-        //}
-
-        // wolf is stuck, can't set mask that excludes all moves
-        //if (notAllowed.Count == 4) {
-        //    Debug.Log("[wolf] Stuck, nowere to move.");
-        //    return;
-        //};
 
         actionMasker.SetMask(0, notAllowed);
     }

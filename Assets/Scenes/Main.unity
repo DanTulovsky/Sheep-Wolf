@@ -153,9 +153,8 @@ MonoBehaviour:
   trainingAreaPrefab: {fileID: 41177145059176048, guid: 83ada3cedeb174189a8b0ba2cb3f4276,
     type: 3}
   numTrainingAreas: 1
-  wolfWon: 0
-  sheepWon: 0
-  tie: 0
+  rows: 8
+  columns: 8
   wolfGamesWonText: {fileID: 921040148}
   sheepGamesWonText: {fileID: 1006995350}
   tieText: {fileID: 842771970}
@@ -772,8 +771,8 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 963194225}
-  m_LocalRotation: {x: 0.37962767, y: 0.0041631055, z: -0.0017083699, w: 0.92512846}
-  m_LocalPosition: {x: 4.909176, y: 18.513386, z: -9.138597}
+  m_LocalRotation: {x: 0.7144926, y: 0.001049643, z: -0.0010719164, w: 0.6996414}
+  m_LocalPosition: {x: 7.2812896, y: 20.852903, z: 7.171622}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}

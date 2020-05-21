@@ -4,24 +4,27 @@ using UnityEngine.InputSystem;
 using UnityEngine;
 
 public class GameObjectBase : MonoBehaviour {
-    public SingleGameManager gameManager;
+    [SerializeField] protected SingleGameManager gameManager;
 
     private Outline outline;
     private bool isSelected;
-
-    public SquareController square;
+    private SquareController square;
 
     protected virtual void Start() {
+        AddOutline();
+    }
+
+    protected virtual void Update() {
+
+    }
+
+    private void AddOutline() {
 
         outline = gameObject.AddComponent<Outline>();
         outline.OutlineMode = Outline.Mode.OutlineAll;
         outline.OutlineColor = Color.yellow;
         outline.OutlineWidth = 3f;
         outline.enabled = false;
-    }
-
-    protected virtual void Update() {
-
     }
 
     public void SetSquare(SquareController sq) {
@@ -36,13 +39,11 @@ public class GameObjectBase : MonoBehaviour {
         switch (eventData.button) {
             case PointerEventData.InputButton.Right:
                 HightLightRemoveAll();
-                gameManager.UnSelect();
                 break;
 
             case PointerEventData.InputButton.Left:
                 HightLightRemoveAll();
                 HighLight();
-                gameManager.Select(gameObject);
                 break;
         }
     }

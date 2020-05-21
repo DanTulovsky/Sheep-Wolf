@@ -22,65 +22,43 @@ public class SingleGameManager : MonoBehaviour {
     private Player turn = Player.Sheep;
     private StatsRecorder statsRecorder;
     private bool decisionRequested = false;
+    private Player winner;
 
-    public Player Turn { get => turn; set => turn = value; }
+    [Header("Game Assets")]
+    public SheepController[] sheep;
+    [SerializeField] private WolfController wolf;
+    [SerializeField] private Transform gameBoard;
+    [SerializeField] private Transform squarePrefab;
+    [SerializeField] private TMP_Text whoseTurnText;
+    [SerializeField] private TMP_Text winningText;
+    [SerializeField] private TMP_Text wolfGamesWonText;
+    [SerializeField] private TMP_Text sheepGamesWonText;
+    [SerializeField] private TMP_Text tieText;
+    [SerializeField] private GameObject statsOverlay;
 
+    [Header("AI Agents")]
     public Agent wolfAgent;
     public Agent sheepAgent;
 
+    public int rows;
+    public int columns;
 
-    public SheepController sheepNext;
-    public SquareController sheepNextMove;
-    public SquareController wolfNextMove;
+    [HideInInspector] public SquareController[,] squares;
+    [HideInInspector] public Player Turn { get => turn; set => turn = value; }
+    [HideInInspector] public SheepController sheepNext;
+    [HideInInspector] public SquareController sheepNextMove;
+    [HideInInspector] public SquareController wolfNextMove;
 
-    public TMP_Text wolfGamesWonText;
-    public TMP_Text sheepGamesWonText;
-    public TMP_Text tieText;
+    [HideInInspector] public int wolfWon;
+    [HideInInspector] public int sheepWon;
+    [HideInInspector] public int tie;
+    [HideInInspector] public bool turnDone = false;
 
-    public Player winner;
-    public int wolfWon;
-    public int sheepWon;
-    public int tie;
-
-    public SheepController[] sheep;
-    public WolfController wolf;
-    public SquareController[,] squares;
-
-    public GameObject statsOverlay;
-    public float minRowCol = 8; // minimum number of rows or columns
-    public float maxRowCol = 8;
-
-    public Transform gameBoard;
-    public Transform squarePrefab;
-    public TMP_Text whoseTurnText;
-    public TMP_Text winningText;
-
-    public bool turnDone = false;
-
-    //public float animationDelay = 0.1f;
-
-    [Header("Game Settings")]
-    [Tooltip("Number of rows")]
-    public int rows = 8;
-    [Tooltip("Number of columns")]
-    public int columns = 8;
 
     public void Awake() {
         Academy.Instance.OnEnvironmentReset += ResetGame;
         statsRecorder = Academy.Instance.StatsRecorder;
         OneTimeSetup();
-    }
-
-    public int wolfSteps;
-    public int sheepSteps;
-
-
-    // Start is called before the first frame update
-    void Start() {
-
-
-        //ResetGame();
-        //Academy.Instance.EnvironmentStep();
     }
 
     void Update() {
@@ -105,14 +83,11 @@ public class SingleGameManager : MonoBehaviour {
                         sheepAgent.RequestDecision();
                         decisionRequested = true;
 
-                        sheepSteps++;
-
                         // Add penalty per step to encourage the seep to capture the wolf
                         float perStepSheepReward = -0.003f;
                         sheepAgent.AddReward(perStepSheepReward);
                     }
                     if (sheepNext && sheepNextMove) {
-                        //Select(sheepNext);
                         HightlightNextPossibleMove(sheepNext);
                         sheepNext.GetComponent<SheepController>().HighLight();
 
@@ -121,7 +96,6 @@ public class SingleGameManager : MonoBehaviour {
                             sheepNextMove = null;
                             sheepNext = null;
                             turn = Player.Wolf;
-                            //UnSelect();
                             decisionRequested = false;
                         }
                     }
@@ -130,14 +104,12 @@ public class SingleGameManager : MonoBehaviour {
 
                 case Player.Wolf:
                     if (!decisionRequested) {
-                        //Select(wolf);
                         HightlightNextPossibleMove(wolf);
                         wolf.GetComponent<WolfController>().HighLight();
 
                         // Collects observations and gets an action
                         wolfAgent.RequestDecision();
                         decisionRequested = true;
-                        wolfSteps++;
 
                         // Add penalty per step to encourage the wolf to get to the end
                         float perStepWolfReward = -0.003f;
@@ -173,6 +145,10 @@ public class SingleGameManager : MonoBehaviour {
         }
     }
 
+    public void DisableStatsOverlay() {
+        statsOverlay.SetActive(false);
+    }
+
     public void OneTimeSetup() {
 
         SetupSquares();
@@ -206,11 +182,19 @@ public class SingleGameManager : MonoBehaviour {
     }
 
     private void SetupSquares() {
+        columns = GameManager.Instance.rows;
+        rows = GameManager.Instance.columns;
+
         squares = new SquareController[columns, rows];
-        Color clr = Color.red;
+        Color clr;
+        Color colColor = Color.black;
 
         for (int c = 0; c < columns; c++) {
+            colColor = (colColor == Color.red) ? Color.black : Color.red;
+            clr = colColor;
+
             for (int r = 0; r < rows; r++) {
+
                 GameObject sq = Instantiate(squarePrefab, SquareCenter(c, r), Quaternion.identity, gameBoard).gameObject;
                 squares[c, r] = sq.GetComponent<SquareController>();
                 squares[c, r].transform.localPosition = SquareCenter(c, r);
@@ -223,9 +207,7 @@ public class SingleGameManager : MonoBehaviour {
                 squareC.Empty();
 
                 clr = (clr == Color.red) ? Color.black : Color.red;
-
             }
-            clr = (clr == Color.red) ? Color.black : Color.red;
         }
     }
 
@@ -235,9 +217,14 @@ public class SingleGameManager : MonoBehaviour {
     }
 
     private void setWolfStartingPosition() {
-        int[] possibleCols = new int[] { 1, 3, 5, 7 };
-        int startingRow = 7;  // fixed
-        int startingCol = possibleCols[Random.Range(0, possibleCols.Length)];
+        List<int> possibleCols = new List<int>();
+
+        for (int i = 1; i < columns; i = i + 2) {
+            possibleCols.Add(i);
+        }
+
+        int startingRow = rows - 1;  // fixed
+        int startingCol = possibleCols[Random.Range(0, possibleCols.Count)];
 
         wolf.transform.SetParent(squares[startingCol, startingRow].transform);
         wolf.transform.localPosition = new Vector3(0, 0.5f, 0);
@@ -246,7 +233,11 @@ public class SingleGameManager : MonoBehaviour {
     }
 
     private void setSheepStartingPositions() {
-        int[] possibleCols = new int[] { 0, 2, 4, 6 };
+        List<int> possibleCols = new List<int>();
+
+        for (int i = 0; i < columns; i = i + 2) {
+            possibleCols.Add(i);
+        }
 
         int startingRow = 0;
 
@@ -256,14 +247,6 @@ public class SingleGameManager : MonoBehaviour {
             sheep[i].GetComponent<SheepController>().SetSquare(squares[possibleCols[i], startingRow]);
             squares[possibleCols[i], startingRow].GetComponent<SquareController>().Occupy(sheep[i].gameObject);
         }
-    }
-
-    public void Select(GameObject obj) {
-        //selectedObject = obj;
-    }
-
-    public void UnSelect() {
-        //selectedObject = null;
     }
 
     public void HightlightNextPossibleMove(GameObjectBase obj) {

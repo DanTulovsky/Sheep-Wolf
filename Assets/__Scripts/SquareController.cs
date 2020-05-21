@@ -69,7 +69,7 @@ public class SquareController : MonoBehaviour, IPointerClickHandler {
 
         // wolf moves forward back backwards
         foreach (int nextRow in new int[] { row + 1, row - 1 }) {
-            if (nextRow >= gameManager.maxRowCol) { continue; }
+            if (nextRow >= gameManager.rows) { continue; }
             if (nextRow < 0) { continue; };
 
             if (column - 1 >= 0) {
@@ -78,7 +78,7 @@ public class SquareController : MonoBehaviour, IPointerClickHandler {
                 }
             }
 
-            if (column + 1 < gameManager.maxRowCol) {
+            if (column + 1 < gameManager.columns) {
                 if (!gameManager.squares[column + 1, nextRow].GetComponent<SquareController>().IsOccupied()) {
                     moves.Add(gameManager.squares[column + 1, nextRow]);
                 }
@@ -99,10 +99,10 @@ public class SquareController : MonoBehaviour, IPointerClickHandler {
         foreach (int nextRow in new int[] { row - 1, row + 1 }) {
             foreach (int nextCol in new int[] { column - 1, column + 1 }) {
 
-                if (nextRow >= gameManager.maxRowCol) { moves.Add(false); continue; }
+                if (nextRow >= gameManager.rows) { moves.Add(false); continue; }
                 if (nextRow < 0) { moves.Add(false); continue; };
 
-                if (nextCol >= gameManager.maxRowCol) { moves.Add(false); continue; }
+                if (nextCol >= gameManager.columns) { moves.Add(false); continue; }
                 if (nextCol < 0) { moves.Add(false); continue; };
 
                 if (!gameManager.squares[nextCol, nextRow].GetComponent<SquareController>().IsOccupied()) {
@@ -131,10 +131,10 @@ public class SquareController : MonoBehaviour, IPointerClickHandler {
         // sheep can only move forward
         foreach (int nextCol in new int[] { column - 1, column + 1 }) {
 
-            if (nextRow >= gameManager.maxRowCol) { moves.Add(false); continue; }
+            if (nextRow >= gameManager.rows) { moves.Add(false); continue; }
             if (nextRow < 0) { moves.Add(false); continue; };
 
-            if (nextCol >= gameManager.maxRowCol) { moves.Add(false); continue; }
+            if (nextCol >= gameManager.columns) { moves.Add(false); continue; }
             if (nextCol < 0) { moves.Add(false); continue; };
 
             var square = gameManager.squares[nextCol, nextRow].GetComponent<SquareController>();
@@ -159,7 +159,7 @@ public class SquareController : MonoBehaviour, IPointerClickHandler {
 
         // sheep only move forward
         int nextRow = row + 1;
-        if (nextRow >= gameManager.maxRowCol) {
+        if (nextRow >= gameManager.rows) {
             return moves;
         }
 
@@ -172,7 +172,7 @@ public class SquareController : MonoBehaviour, IPointerClickHandler {
             }
         }
 
-        if (column + 1 < gameManager.maxRowCol) {
+        if (column + 1 < gameManager.columns) {
             var square = gameManager.squares[column + 1, nextRow].GetComponent<SquareController>();
             //Debug.Log($"square: {square}, is occupied? {square.IsOccupied()}");
 

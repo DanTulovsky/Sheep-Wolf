@@ -30,15 +30,15 @@ public class SheepAgent : Agent {
         // current positions: 2
         wolfSquareController = wolf.Square().GetComponent<SquareController>();
 
-        sensor.AddObservation(wolfSquareController.column / (float)gameManager.maxRowCol);
-        sensor.AddObservation(wolfSquareController.row / (float)gameManager.maxRowCol);
+        sensor.AddObservation(wolfSquareController.column / (float)gameManager.columns);
+        sensor.AddObservation(wolfSquareController.row / (float)gameManager.rows);
 
         // position of the sheep: 4 x (1+1) = 8
         foreach (SheepController shp in gameManager.sheep) {
             shpSquareController = shp.Square().GetComponent<SquareController>();
 
-            sensor.AddObservation(shpSquareController.column / (float)gameManager.maxRowCol);
-            sensor.AddObservation(shpSquareController.row / (float)gameManager.maxRowCol);
+            sensor.AddObservation(shpSquareController.column / (float)gameManager.columns);
+            sensor.AddObservation(shpSquareController.row / (float)gameManager.rows);
         }
 
         haveObservation = true;
@@ -130,14 +130,7 @@ public class SheepAgent : Agent {
         // all sheep can't move, this happens if they get to the other side
         // but the wolf has not yet made it to the end (which can happen with random movements)
         if (notAllowed.Count == 8) { // 8 sheep * 2 moves each
-            //SetReward(-1.0f);
-            //EndEpisode();
-            //gameManager.wolfWon++;
-            //gameManager.winner = Player.Wolf;
-            Debug.Log($"[sheep] stuck; setting wolf as winner: {gameManager.winner}");
-            // let the wolf check one more time so it picks up the fact that it won
-            //gameManager.Turn = Player.Wolf;
-            return;
+            //return;
         };
 
         actionMasker.SetMask(0, notAllowed);
