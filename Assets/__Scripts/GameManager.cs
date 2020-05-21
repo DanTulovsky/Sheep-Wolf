@@ -28,6 +28,7 @@ public class GameManager : Singleton<GameManager> {
     private StatsRecorder statsRecorder;
     private bool nextTurnReady = false;
 
+
     protected override void Awake() {
         base.Awake();
 
@@ -57,10 +58,22 @@ public class GameManager : Singleton<GameManager> {
     void Update() {
 
         nextTurnReady = true;
+        wolfWon = 0;
+        sheepWon = 0;
+        tie = 0;
+
+        // Send stats via SideChannel so that they'll appear in TensorBoard.
+        // These values get averaged every summary_frequency steps, so we don't
+        // need to send every Update() call.
+        if ((Time.frameCount % 100) == 0) {
+            statsRecorder.Add("WolfGamesWon", wolfWon);
+            statsRecorder.Add("SheepGamesWon", sheepWon);
+        }
 
         foreach (var area in traingingAreas) {
             if (!area.turnDone) {
                 nextTurnReady = false;
+                return;
             }
             wolfWon += area.wolfWon;
             sheepWon += area.sheepWon;
@@ -77,13 +90,6 @@ public class GameManager : Singleton<GameManager> {
         }
 
 
-        // Send stats via SideChannel so that they'll appear in TensorBoard.
-        // These values get averaged every summary_frequency steps, so we don't
-        // need to send every Update() call.
-        if ((Time.frameCount % 100) == 0) {
-            statsRecorder.Add("WolfGamesWon", wolfWon);
-            statsRecorder.Add("SheepGamesWon", sheepWon);
-        }
     }
 
     private void AllowNextTurn() {

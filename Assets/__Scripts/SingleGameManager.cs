@@ -134,8 +134,6 @@ public class SingleGameManager : MonoBehaviour {
             }
         }
 
-
-
         if (statsOverlay.activeSelf) {
             whoseTurnText.SetText(turn.ToString());
             wolfGamesWonText.SetText(wolfWon.ToString());
