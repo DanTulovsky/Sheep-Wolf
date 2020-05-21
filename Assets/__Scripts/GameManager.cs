@@ -38,11 +38,25 @@ public class GameManager : Singleton<GameManager> {
 
     // Start is called before the first frame update
     void Start() {
+
+        int numCols = Mathf.FloorToInt(Mathf.Sqrt(numTrainingAreas));
+
+        int row = 0;
+        int col = 0;
+
         for (int i = 0; i < numTrainingAreas; i++) {
             GameObject ta = Instantiate(trainingAreaPrefab, new Vector3(0, 0, 0), Quaternion.identity, transform).gameObject;
             ta.transform.SetParent(transform);
-            ta.transform.localPosition = new Vector3(0, i * 10, 0);
+            ta.transform.localPosition = new Vector3(col * columns + i % numCols, 0, row);
             SingleGameManager sgm = ta.GetComponentInChildren<SingleGameManager>();
+
+            col++;
+
+            if (col >= numCols) {
+                row += rows + 1;
+                col = 0;
+            }
+
 
             // Disable per-game overlay in this training mode
             sgm.DisableStatsOverlay();

@@ -112,8 +112,8 @@ public class SingleGameManager : MonoBehaviour {
                         decisionRequested = true;
 
                         // Add penalty per step to encourage the wolf to get to the end
-                        float perStepWolfReward = -0.003f;
-                        wolfAgent.AddReward(perStepWolfReward);
+                        //float perStepWolfReward = -0.003f;
+                        //wolfAgent.AddReward(perStepWolfReward);
                     }
 
                     if (wolfNextMove) {
@@ -363,18 +363,18 @@ public class SingleGameManager : MonoBehaviour {
 
         // sheep can't move, but wolf hasn't made it to the end yet
         // this happens because the wolf can move randomly
-        // treat this as a tie
+        // treat this as a wolf loss to encourage the wolf to make it to the end
         if (!SheepCanMove()) {
             Debug.Log(">>>>>>>>>>>>>>>>>>>>>>>>>>  [manager] Sheep won (by default)!");
-            winner = Player.None;
+            winner = Player.Sheep;
 
-            wolfAgent.SetReward(0.0f);
+            wolfAgent.SetReward(-.0f);
             wolfAgent.EndEpisode();
 
-            sheepAgent.SetReward(0.0f);
+            sheepAgent.SetReward(1.0f);
             sheepAgent.EndEpisode();
 
-            tie++;
+            sheepWon++;
 
             return true;
         }
