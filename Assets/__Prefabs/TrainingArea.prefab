@@ -212,11 +212,12 @@ MonoBehaviour:
   sheepWon: 0
   tie: 0
   sheep:
-  - {fileID: 7525452666767552319}
-  - {fileID: 7525452667831087114}
-  - {fileID: 7525452666005795427}
-  - {fileID: 7525452667467168449}
-  wolf: {fileID: 5043588712746401529}
+  - {fileID: 699238311912394121}
+  - {fileID: 699238312975897276}
+  - {fileID: 699238311077171413}
+  - {fileID: 699238312270272631}
+  wolf: {fileID: 3392243733951238639}
+  statsOverlay: {fileID: 5043588712056158243}
   minRowCol: 8
   maxRowCol: 8
   gameBoard: {fileID: 5043588713195849863}

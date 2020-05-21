@@ -9,7 +9,7 @@ public class GameObjectBase : MonoBehaviour {
     private Outline outline;
     private bool isSelected;
 
-    public GameObject square;
+    public SquareController square;
 
     protected virtual void Start() {
 
@@ -24,11 +24,11 @@ public class GameObjectBase : MonoBehaviour {
 
     }
 
-    public void SetSquare(GameObject sq) {
+    public void SetSquare(SquareController sq) {
         square = sq;
     }
 
-    public GameObject Square() {
+    public SquareController Square() {
         return square;
     }
 

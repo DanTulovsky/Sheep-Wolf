@@ -21,28 +21,31 @@ public enum Controller {
 public class SingleGameManager : MonoBehaviour {
     private Player turn = Player.Sheep;
     private StatsRecorder statsRecorder;
+    private bool decisionRequested = false;
 
     public Player Turn { get => turn; set => turn = value; }
 
     public Agent wolfAgent;
     public Agent sheepAgent;
 
-    public Player winner;
-    public GameObject wolfNextMove;
-    public GameObject sheepNext;
-    public GameObject sheepNextMove;
+
+    public SheepController sheepNext;
+    public SquareController sheepNextMove;
+    public SquareController wolfNextMove;
 
     public TMP_Text wolfGamesWonText;
     public TMP_Text sheepGamesWonText;
     public TMP_Text tieText;
 
+    public Player winner;
     public int wolfWon;
     public int sheepWon;
     public int tie;
 
-    public GameObject[] sheep;
-    public GameObject wolf;
-    public GameObject[,] squares;
+    public SheepController[] sheep;
+    public WolfController wolf;
+    public SquareController[,] squares;
+
     public GameObject statsOverlay;
     public float minRowCol = 8; // minimum number of rows or columns
     public float maxRowCol = 8;
@@ -53,7 +56,6 @@ public class SingleGameManager : MonoBehaviour {
     public TMP_Text winningText;
 
     public bool turnDone = false;
-    private bool decisionRequested = false;
 
     //public float animationDelay = 0.1f;
 
@@ -102,11 +104,7 @@ public class SingleGameManager : MonoBehaviour {
                         // this sets sheepNext and sheepNextMove
                         sheepAgent.RequestDecision();
                         decisionRequested = true;
-                        // execute decision
 
-                        // TODO: For multiple environments, move this out into a main manager that steps after all
-                        // environments have moved.
-                        //Academy.Instance.EnvironmentStep();
                         sheepSteps++;
 
                         // Add penalty per step to encourage the seep to capture the wolf
@@ -134,14 +132,11 @@ public class SingleGameManager : MonoBehaviour {
                     if (!decisionRequested) {
                         //Select(wolf);
                         HightlightNextPossibleMove(wolf);
-
                         wolf.GetComponent<WolfController>().HighLight();
 
                         // Collects observations and gets an action
                         wolfAgent.RequestDecision();
                         decisionRequested = true;
-                        // execute decision
-                        //Academy.Instance.EnvironmentStep();
                         wolfSteps++;
 
                         // Add penalty per step to encourage the wolf to get to the end
@@ -178,8 +173,6 @@ public class SingleGameManager : MonoBehaviour {
         }
     }
 
-
-
     public void OneTimeSetup() {
 
         SetupSquares();
@@ -213,12 +206,13 @@ public class SingleGameManager : MonoBehaviour {
     }
 
     private void SetupSquares() {
-        squares = new GameObject[columns, rows];
+        squares = new SquareController[columns, rows];
         Color clr = Color.red;
 
         for (int c = 0; c < columns; c++) {
             for (int r = 0; r < rows; r++) {
-                squares[c, r] = Instantiate(squarePrefab, SquareCenter(c, r), Quaternion.identity, gameBoard).gameObject;
+                GameObject sq = Instantiate(squarePrefab, SquareCenter(c, r), Quaternion.identity, gameBoard).gameObject;
+                squares[c, r] = sq.GetComponent<SquareController>();
                 squares[c, r].transform.localPosition = SquareCenter(c, r);
                 SquareController squareC = squares[c, r].GetComponent<SquareController>();
                 squareC.gameManager = this;
@@ -248,7 +242,7 @@ public class SingleGameManager : MonoBehaviour {
         wolf.transform.SetParent(squares[startingCol, startingRow].transform);
         wolf.transform.localPosition = new Vector3(0, 0.5f, 0);
         wolf.GetComponent<WolfController>().SetSquare(squares[startingCol, startingRow]);
-        squares[startingCol, startingRow].GetComponent<SquareController>().Occupy(wolf);
+        squares[startingCol, startingRow].GetComponent<SquareController>().Occupy(wolf.gameObject);
     }
 
     private void setSheepStartingPositions() {
@@ -260,7 +254,7 @@ public class SingleGameManager : MonoBehaviour {
             sheep[i].transform.SetParent(squares[possibleCols[i], startingRow].transform);
             sheep[i].transform.localPosition = new Vector3(0, 0.75f, 0);
             sheep[i].GetComponent<SheepController>().SetSquare(squares[possibleCols[i], startingRow]);
-            squares[possibleCols[i], startingRow].GetComponent<SquareController>().Occupy(sheep[i]);
+            squares[possibleCols[i], startingRow].GetComponent<SquareController>().Occupy(sheep[i].gameObject);
         }
     }
 
@@ -272,21 +266,21 @@ public class SingleGameManager : MonoBehaviour {
         //selectedObject = null;
     }
 
-    public void HightlightNextPossibleMove(GameObject obj) {
+    public void HightlightNextPossibleMove(GameObjectBase obj) {
         if (!obj) { return; };
 
         RemoveSquareHighlights();
 
-        GameObject currentSquare = obj.GetComponent<GameObjectBase>().Square();
-        List<GameObject> possibleMoves = currentSquare.GetComponent<SquareController>().PossibleMoves();
+        SquareController currentSquare = obj.Square();
+        List<SquareController> possibleMoves = currentSquare.PossibleMoves();
 
         foreach (var sq in possibleMoves) {
             sq.GetComponent<SquareController>().HighLight();
         }
 
     }
-    public void SheepMoveTo(GameObject selectedObject, GameObject to) {
-        GameObject currentSquare = selectedObject.GetComponent<SheepController>().Square();
+    public void SheepMoveTo(SheepController selectedObject, SquareController to) {
+        SquareController currentSquare = selectedObject.Square();
         SquareController squareController = currentSquare.GetComponent<SquareController>();
         SquareController toController = to.GetComponent<SquareController>();
 
@@ -294,7 +288,7 @@ public class SingleGameManager : MonoBehaviour {
             selectedObject.transform.SetParent(to.transform);
             selectedObject.transform.localPosition = new Vector3(0, 0.75f, 0);
             squareController.Empty();
-            toController.Occupy(selectedObject);
+            toController.Occupy(selectedObject.gameObject);
             selectedObject.GetComponent<SheepController>().SetSquare(to);
 
             RemoveSquareHighlights();
@@ -302,13 +296,13 @@ public class SingleGameManager : MonoBehaviour {
         }
     }
 
-    public bool SheepMovePossible(GameObject selectedObject, GameObject to) {
+    public bool SheepMovePossible(SheepController selectedObject, SquareController to) {
         if (!selectedObject) { return false; };
 
-        GameObject currentSquare = selectedObject.GetComponent<SheepController>().Square();
+        SquareController currentSquare = selectedObject.Square();
         SquareController squareController = currentSquare.GetComponent<SquareController>();
 
-        List<GameObject> possibleMoves = squareController.PossibleSheepMoves();
+        List<SquareController> possibleMoves = squareController.PossibleSheepMoves();
 
         if (possibleMoves.Contains(to)) {
             return true;
@@ -318,18 +312,16 @@ public class SingleGameManager : MonoBehaviour {
 
     }
 
-    public void WolfMoveTo(GameObject to) {
+    public void WolfMoveTo(SquareController to) {
 
-        GameObject currentSquare = wolf.GetComponent<WolfController>().Square();
+        SquareController squareController = wolf.GetComponent<WolfController>().Square();
         WolfController wolfController = wolf.GetComponent<WolfController>();
-        SquareController squareController = currentSquare.GetComponent<SquareController>();
-        SquareController toController = to.GetComponent<SquareController>();
 
         if (WolfMovePossible(to)) {
             wolf.transform.SetParent(to.transform);
             wolf.transform.localPosition = new Vector3(0, 0.75f, 0);
             squareController.Empty();
-            toController.Occupy(wolf);
+            to.Occupy(wolf.gameObject);
             wolfController.SetSquare(to);
 
             RemoveSquareHighlights();
@@ -337,12 +329,12 @@ public class SingleGameManager : MonoBehaviour {
         }
     }
 
-    public bool WolfMovePossible(GameObject to) {
+    public bool WolfMovePossible(SquareController to) {
 
-        GameObject currentSquare = wolf.GetComponent<WolfController>().Square();
+        SquareController currentSquare = wolf.GetComponent<WolfController>().Square();
         SquareController squareController = currentSquare.GetComponent<SquareController>();
 
-        List<GameObject> possibleMoves = squareController.PossibleWolfMoves();
+        List<SquareController> possibleMoves = squareController.PossibleWolfMoves();
 
         if (possibleMoves.Contains(to)) {
             return true;
@@ -372,7 +364,7 @@ public class SingleGameManager : MonoBehaviour {
         }
 
         // Wolf can't move
-        List<GameObject> possibleMoves = wolfController.Square().GetComponent<SquareController>().PossibleWolfMoves();
+        List<SquareController> possibleMoves = wolfController.Square().GetComponent<SquareController>().PossibleWolfMoves();
         if (possibleMoves.Count == 0) {
             Debug.Log(">>>>>>>>>>>>>>>>>>>>>>>>>>  [manager] Sheep won!");
             winner = Player.Sheep;
@@ -410,7 +402,7 @@ public class SingleGameManager : MonoBehaviour {
     }
 
     public bool SheepCanMove() {
-        List<GameObject> perSheepAllowedMoves = new List<GameObject>();
+        List<SquareController> perSheepAllowedMoves = new List<SquareController>();
 
         for (int i = 0; i < sheep.Length; i++) {
             // grab the sheep controller

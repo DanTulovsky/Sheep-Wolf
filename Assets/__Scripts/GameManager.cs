@@ -63,11 +63,12 @@ public class GameManager : Singleton<GameManager> {
         if (nextTurnReady) {
             Academy.Instance.EnvironmentStep();
             AllowNextTurn();
+
+            wolfGamesWonText.SetText(wolfWon.ToString());
+            sheepGamesWonText.SetText(sheepWon.ToString());
+            tieText.SetText(tie.ToString());
         }
 
-        wolfGamesWonText.SetText(wolfWon.ToString());
-        sheepGamesWonText.SetText(sheepWon.ToString());
-        tieText.SetText(tie.ToString());
 
         // Send stats via SideChannel so that they'll appear in TensorBoard.
         // These values get averaged every summary_frequency steps, so we don't

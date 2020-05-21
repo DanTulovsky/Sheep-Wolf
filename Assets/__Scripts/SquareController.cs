@@ -44,28 +44,28 @@ public class SquareController : MonoBehaviour, IPointerClickHandler {
         occupant = null;
     }
 
-    public List<GameObject> PossibleMoves() {
-        if (!occupant) { return new List<GameObject>() { }; };
+    public List<SquareController> PossibleMoves() {
+        if (!occupant) { return new List<SquareController>() { }; };
 
         WolfController wolf;
         SheepController sheep;
 
         if (occupant.TryGetComponent<WolfController>(out wolf) && gameManager.Turn == Player.Wolf) {
-            List<GameObject> wolfMoves = PossibleWolfMoves();
+            List<SquareController> wolfMoves = PossibleWolfMoves();
             return wolfMoves;
         }
 
         if (occupant.TryGetComponent<SheepController>(out sheep) && gameManager.Turn == Player.Sheep) {
-            List<GameObject> sheepMoves = PossibleSheepMoves();
+            List<SquareController> sheepMoves = PossibleSheepMoves();
             return sheepMoves;
         }
 
-        return new List<GameObject>() { };
+        return new List<SquareController>() { };
     }
 
 
-    public List<GameObject> PossibleWolfMoves() {
-        List<GameObject> moves = new List<GameObject> { };
+    public List<SquareController> PossibleWolfMoves() {
+        List<SquareController> moves = new List<SquareController> { };
 
         // wolf moves forward back backwards
         foreach (int nextRow in new int[] { row + 1, row - 1 }) {
@@ -154,8 +154,8 @@ public class SquareController : MonoBehaviour, IPointerClickHandler {
         return moves;
     }
 
-    public List<GameObject> PossibleSheepMoves() {
-        List<GameObject> moves = new List<GameObject> { };
+    public List<SquareController> PossibleSheepMoves() {
+        List<SquareController> moves = new List<SquareController> { };
 
         // sheep only move forward
         int nextRow = row + 1;
@@ -168,7 +168,7 @@ public class SquareController : MonoBehaviour, IPointerClickHandler {
             //Debug.Log($"square: {square}, is occupied? {square.IsOccupied()}");
 
             if (!square.IsOccupied()) {
-                moves.Add(square.gameObject);
+                moves.Add(square);
             }
         }
 
@@ -177,7 +177,7 @@ public class SquareController : MonoBehaviour, IPointerClickHandler {
             //Debug.Log($"square: {square}, is occupied? {square.IsOccupied()}");
 
             if (!square.IsOccupied()) {
-                moves.Add(square.gameObject);
+                moves.Add(square);
             }
         }
 
