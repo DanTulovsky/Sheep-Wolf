@@ -13,17 +13,19 @@ public class SquareController : MonoBehaviour, IPointerClickHandler {
     public int column;
     public int row;
 
-    // Start is called before the first frame update
-    void Start() {
-        Renderer renderer = gameObject.GetComponent<Renderer>();
-        renderer.material.SetColor("_Color", color);
+    void Awake() {
 
         outline = gameObject.AddComponent<Outline>();
         outline.OutlineMode = Outline.Mode.OutlineAll;
         outline.OutlineColor = Color.yellow;
         outline.OutlineWidth = 3f;
         outline.enabled = false;
+    }
 
+    // Start is called before the first frame update
+    void Start() {
+        Renderer renderer = gameObject.GetComponent<Renderer>();
+        renderer.material.SetColor("_Color", color);
     }
 
     // Update is called once per frame
