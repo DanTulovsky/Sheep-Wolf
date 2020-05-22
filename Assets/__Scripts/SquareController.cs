@@ -138,7 +138,6 @@ public class SquareController : MonoBehaviour, IPointerClickHandler {
             if (nextCol < 0) { moves.Add(false); continue; };
 
             var square = gameManager.squares[nextCol, nextRow].GetComponent<SquareController>();
-            Debug.Log($">> square: {square}, is occupied? {square.IsOccupied()}");
 
             if (!square.IsOccupied()) {
                 moves.Add(true);
@@ -165,7 +164,6 @@ public class SquareController : MonoBehaviour, IPointerClickHandler {
 
         if (column - 1 >= 0) {
             var square = gameManager.squares[column - 1, nextRow].GetComponent<SquareController>();
-            //Debug.Log($"square: {square}, is occupied? {square.IsOccupied()}");
 
             if (!square.IsOccupied()) {
                 moves.Add(square);
@@ -174,7 +172,6 @@ public class SquareController : MonoBehaviour, IPointerClickHandler {
 
         if (column + 1 < gameManager.columns) {
             var square = gameManager.squares[column + 1, nextRow].GetComponent<SquareController>();
-            //Debug.Log($"square: {square}, is occupied? {square.IsOccupied()}");
 
             if (!square.IsOccupied()) {
                 moves.Add(square);

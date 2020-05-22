@@ -18,13 +18,10 @@ public class SheepAgent : Agent {
     private bool haveObservation;
 
     public override void OnEpisodeBegin() {
-        Debug.Log("[sheep] begin episode!");
         haveObservation = false;
     }
 
     public override void CollectObservations(VectorSensor sensor) {
-        Debug.Log("[sheep] Observing for sheep...");
-
         // space size: 10
 
         // current positions: 2
@@ -45,9 +42,7 @@ public class SheepAgent : Agent {
     }
 
     public override void OnActionReceived(float[] branches) {
-        Debug.Log($"[sheep] action received: {branches}");
         if (!haveObservation) {
-            Debug.Log("[sheep] No observation, not taking action!");
             return;
         }
 
@@ -61,7 +56,6 @@ public class SheepAgent : Agent {
         //  6 = {sheep = 3; row = 1; col = -1}
         //  7 = {sheep = 3; row = 1; col = 1}
         int selection = Mathf.FloorToInt(branches[0]);
-        Debug.Log($"[sheep] selection: {selection}");
 
 
         int sheep = 0, row = 0, col = 0;
@@ -80,23 +74,17 @@ public class SheepAgent : Agent {
         gameManager.sheepNext = gameManager.sheep[sheep];
         SheepController shController = gameManager.sheep[sheep].GetComponent<SheepController>();
         SquareController squareController = shController.Square().GetComponent<SquareController>();
-        Debug.Log($"[sheep] Sheep at: {shController.ToString()}");
 
         // which square
         int nextRow = squareController.row + row;
         int nextCol = squareController.column + col;
 
-        Debug.Log($"[sheep] nextRow: {nextRow}");
-        Debug.Log($"[sheep] nextCol: {nextCol}");
-
         SquareController nextSquare = gameManager.squares[nextCol, nextRow];
-        Debug.Log($"[sheep] Sheep will move to: {nextSquare.GetComponent<SquareController>().ToString()}");
         gameManager.sheepNextMove = nextSquare;
     }
 
     // mask some moves as not possible
     public override void CollectDiscreteActionMasks(DiscreteActionMasker actionMasker) {
-        Debug.Log("[sheep] Calculating mask...");
 
         // contains the list of disallowed sheep/moves by number (see: OnActionReceived)
         List<int> notAllowed = new List<int>();
@@ -120,18 +108,6 @@ public class SheepAgent : Agent {
                 }
             }
         }
-
-        Debug.Log($"[sheep] Not Allowed actions: ");
-        foreach (var i in notAllowed) {
-            Debug.Log($"  {i}");
-
-        }
-
-        // all sheep can't move, this happens if they get to the other side
-        // but the wolf has not yet made it to the end (which can happen with random movements)
-        if (notAllowed.Count == 8) { // 8 sheep * 2 moves each
-            //return;
-        };
 
         actionMasker.SetMask(0, notAllowed);
     }
@@ -163,18 +139,11 @@ public class SheepAgent : Agent {
         }
 
         sheep = match.GetComponent<SheepController>();
-        //if (match != null) {
-        //    sheep = match.GetComponent<SheepController>();
-        //} else {
-        //    Debug.Log("Failed to find a sheep that can move!");
-        //    sheep = null;
-        //}
         return returnIndex;
     }
 
 
     public override void Heuristic(float[] actionsOut) {
-        Debug.Log("[sheep] in heuristic");
         List<bool> possibleMoves;
 
         // pick random sheep that can move
@@ -182,20 +151,11 @@ public class SheepAgent : Agent {
         int sheepIndex = randomSheepWithMoves(out shController);
 
         if (!shController) { return; };
-        Debug.Log($"[sheep] Sheep index (in sheep list) picked: {sheepIndex}");
-        Debug.Log($"[sheep] Sheep is at: {gameManager.sheep[sheepIndex].GetComponent<SheepController>()}");
 
         SquareController sheepSquareController = shController.Square().GetComponent<SquareController>();
 
         // pick random move
         possibleMoves = sheepSquareController.PossibleSheepMovesDir();
-
-        // debug output
-        for (int i = 0; i < possibleMoves.Count; i++) {
-            bool m = possibleMoves[i];
-            Debug.Log($"[sheep] index: {i}; value: {m}");
-        }
-
 
         int matched = 0;
         int moveIndex = 0;
@@ -211,6 +171,5 @@ public class SheepAgent : Agent {
         }
 
         actionsOut[0] = 2 * sheepIndex + moveIndex;
-        Debug.Log($"[sheep] heuristic says: {actionsOut[0]} (out of {possibleMoves.Count * gameManager.sheep.Length} possible moves");
     }
 }

@@ -68,7 +68,6 @@ public class SingleGameManager : MonoBehaviour {
         if (HaveWinner()) {
             winningText.SetText($"The winner is: {winner.ToString()}");
             winningText.enabled = true;
-            Debug.Log("  [update] Resetting game...");
             ResetGame();
             return;
         }
@@ -154,8 +153,6 @@ public class SingleGameManager : MonoBehaviour {
     }
 
     public void ResetGame() {
-        Debug.Log("Resetting environment...");
-
         ResetSquares();
         setWolfStartingPosition();
         setSheepStartingPositions();
@@ -170,7 +167,6 @@ public class SingleGameManager : MonoBehaviour {
     // Reset squares after episode
     private void ResetSquares() {
 
-        Debug.Log("Resetting squares...");
         for (int c = 0; c < columns; c++) {
             for (int r = 0; r < rows; r++) {
                 SquareController squareC = squares[c, r].GetComponent<SquareController>();
@@ -325,12 +321,10 @@ public class SingleGameManager : MonoBehaviour {
     }
 
     public bool HaveWinner() {
-        //Debug.Log("Checking winner...");
         WolfController wolfController = wolf.GetComponent<WolfController>();
 
         // Wolf made it to the end
         if (wolfController.Square().GetComponent<SquareController>().row == 0) {
-            Debug.Log(">>>>>>>>>>>>>>>>>>>>>>>>>>  [manager] Wolf won!");
             winner = Player.Wolf;
 
             wolfAgent.AddReward(1.0f);
@@ -347,7 +341,6 @@ public class SingleGameManager : MonoBehaviour {
         // Wolf can't move
         List<SquareController> possibleMoves = wolfController.Square().GetComponent<SquareController>().PossibleWolfMoves();
         if (possibleMoves.Count == 0) {
-            Debug.Log(">>>>>>>>>>>>>>>>>>>>>>>>>>  [manager] Sheep won!");
             winner = Player.Sheep;
 
             wolfAgent.AddReward(-1.0f);
@@ -365,7 +358,6 @@ public class SingleGameManager : MonoBehaviour {
         // this happens because the wolf can move randomly
         // treat this as a wolf loss to encourage the wolf to make it to the end
         if (!SheepCanMove()) {
-            Debug.Log(">>>>>>>>>>>>>>>>>>>>>>>>>>  [manager] Sheep won (by default)!");
             winner = Player.Sheep;
 
             wolfAgent.SetReward(-.0f);

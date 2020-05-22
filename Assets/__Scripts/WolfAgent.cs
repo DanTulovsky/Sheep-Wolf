@@ -17,15 +17,11 @@ public class WolfAgent : Agent {
     private bool haveObservation;
 
     public override void OnEpisodeBegin() {
-        Debug.Log("[wolf] begin episode!");
         haveObservation = false;
     }
 
     public override void CollectObservations(VectorSensor sensor) {
-        Debug.Log("[wolf] Observing...");
-
         // space size: 10
-        // TODO: Normalize all observations! Should be between -1 and 1
         // current positions: 2
         wolfSquareController = wolf.Square().GetComponent<SquareController>();
 
@@ -46,18 +42,14 @@ public class WolfAgent : Agent {
 
 
     public override void OnActionReceived(float[] branches) {
-        Debug.Log($"[wolf] action received: {branches}");
         if (!haveObservation) {
-            Debug.Log("[wolf] No observation, not taking action!");
             return;
         }
 
         wolfSquareController = wolf.Square().GetComponent<SquareController>();
-        Debug.Log($"[wolf] Wolf at: {wolfSquareController}");
 
         // 1 branch, 4 options = 4 movement directions
         int movement = Mathf.FloorToInt(branches[0]);
-        Debug.Log($"[wolf] movement: {movement}");
         int row = 0, col = 0;
 
         if (movement == 0) { row = -1; col = -1; };
@@ -69,15 +61,12 @@ public class WolfAgent : Agent {
         int nextCol = wolfSquareController.column + col;
 
         SquareController nextSquare = gameManager.squares[nextCol, nextRow];
-        Debug.Log($"[wolf] Wolf at: {wolfSquareController.ToString()}");
-        Debug.Log($"[wolf] Wolf will move to: {nextSquare.GetComponent<SquareController>().ToString()}");
         gameManager.wolfNextMove = nextSquare;
 
     }
 
     // mask some moves as not possible
     public override void CollectDiscreteActionMasks(DiscreteActionMasker actionMasker) {
-        Debug.Log("[wolf] Calculating mask...");
         List<bool> possibleMoves = wolfSquareController.PossibleWolfMovesDir();
 
         List<int> notAllowed = new List<int>() { };
@@ -92,12 +81,10 @@ public class WolfAgent : Agent {
     }
 
     public override void Heuristic(float[] actionsOut) {
-        Debug.Log("[wolf] in heuristic");
         List<bool> possibleMoves = wolfSquareController.PossibleWolfMovesDir();
 
         for (int i = 0; i < possibleMoves.Count; i++) {
             bool m = possibleMoves[i];
-            Debug.Log($"[wolf] index: {i}; value: {m}");
         }
 
         int matched = 0;
@@ -119,6 +106,5 @@ public class WolfAgent : Agent {
         }
 
         actionsOut[0] = moveIndex;
-        Debug.Log($"[wolf] heuristic says: {actionsOut[0]} (out of {possibleMoves.Count} possible moves");
     }
 }
