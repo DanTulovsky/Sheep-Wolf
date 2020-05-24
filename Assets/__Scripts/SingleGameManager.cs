@@ -56,6 +56,12 @@ public class SingleGameManager : MonoBehaviour {
 
 
     public void Awake() {
+        //Academy.Instance.OnEnvironmentReset += ResetGame;
+        //statsRecorder = Academy.Instance.StatsRecorder;
+        //OneTimeSetup();
+    }
+
+    public void Start() {
         Academy.Instance.OnEnvironmentReset += ResetGame;
         statsRecorder = Academy.Instance.StatsRecorder;
         OneTimeSetup();
@@ -149,6 +155,8 @@ public class SingleGameManager : MonoBehaviour {
     public void OneTimeSetup() {
 
         SetupSquares();
+        setWolfStartingPosition();
+        setSheepStartingPositions();
         winningText.enabled = false;
     }
 

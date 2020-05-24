@@ -27,6 +27,7 @@ public class GameManager : Singleton<GameManager> {
     [Header("Agent Control")]
     public AgentController sheepAgenController;
     public AgentController wolfAgentController;
+    public bool isTraining = false;
 
     private int wolfWon;
     private int sheepWon;
@@ -52,31 +53,32 @@ public class GameManager : Singleton<GameManager> {
     // Start is called before the first frame update
     void Start() {
 
-        int numCols = Mathf.FloorToInt(Mathf.Sqrt(numTrainingAreas));
+        if (isTraining) {
+            int numCols = Mathf.FloorToInt(Mathf.Sqrt(numTrainingAreas));
 
-        int row = 0;
-        int col = 0;
+            int row = 0;
+            int col = 0;
 
-        for (int i = 0; i < numTrainingAreas; i++) {
-            GameObject ta = Instantiate(trainingAreaPrefab, new Vector3(0, 0, 0), Quaternion.identity, transform).gameObject;
-            ta.transform.SetParent(transform);
-            ta.transform.localPosition = new Vector3(col * columns + i % numCols, 0, row);
-            SingleGameManager sgm = ta.GetComponentInChildren<SingleGameManager>();
+            for (int i = 0; i < numTrainingAreas; i++) {
+                GameObject ta = Instantiate(trainingAreaPrefab, new Vector3(0, 0, 0), Quaternion.identity, transform).gameObject;
+                ta.transform.SetParent(transform);
+                ta.transform.localPosition = new Vector3(col * columns + i % numCols, 0, row);
+                SingleGameManager sgm = ta.GetComponentInChildren<SingleGameManager>();
 
-            col++;
+                col++;
 
-            if (col >= numCols) {
-                row += rows + 1;
-                col = 0;
+                if (col >= numCols) {
+                    row += rows + 1;
+                    col = 0;
+                }
+
+
+                // Disable per-game overlay in this training mode
+                sgm.DisableStatsOverlay();
+
+                traingingAreas.Add(sgm);
             }
-
-
-            // Disable per-game overlay in this training mode
-            sgm.DisableStatsOverlay();
-
-            traingingAreas.Add(sgm);
         }
-
         if (haveAI) {
             Academy.Instance.EnvironmentStep();
         }
