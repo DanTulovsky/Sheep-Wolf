@@ -1,8 +1,12 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 using Unity.MLAgents;
 using TMPro;
+
+public enum AgentController {
+    Human,
+    AI
+}
 
 public class GameManager : Singleton<GameManager> {
 
@@ -20,6 +24,10 @@ public class GameManager : Singleton<GameManager> {
     [SerializeField] private TMP_Text sheepGamesWonText;
     [SerializeField] private TMP_Text tieText;
 
+    [Header("Agent Control")]
+    public AgentController sheepAgenController;
+    public AgentController wolfAgentController;
+
     private int wolfWon;
     private int sheepWon;
     private int tie;
@@ -27,10 +35,15 @@ public class GameManager : Singleton<GameManager> {
     private List<SingleGameManager> traingingAreas = new List<SingleGameManager>();
     private StatsRecorder statsRecorder;
     private bool nextTurnReady = false;
+    private bool haveAI = false;
 
 
     protected override void Awake() {
         base.Awake();
+
+        if (wolfAgentController == AgentController.AI || sheepAgenController == AgentController.AI) {
+            haveAI = true;
+        }
 
         Academy.Instance.AutomaticSteppingEnabled = false;
         statsRecorder = Academy.Instance.StatsRecorder;
@@ -64,7 +77,9 @@ public class GameManager : Singleton<GameManager> {
             traingingAreas.Add(sgm);
         }
 
-        Academy.Instance.EnvironmentStep();
+        if (haveAI) {
+            Academy.Instance.EnvironmentStep();
+        }
 
     }
 
