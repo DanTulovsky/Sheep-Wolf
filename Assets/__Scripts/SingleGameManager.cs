@@ -22,7 +22,7 @@ public class SingleGameManager : MonoBehaviour {
     private Player turn = Player.Sheep;
     private bool decisionRequested = false;
     private Player winner;
-    private bool isTraining = false;
+    private bool haveAI = false;
 
     [Header("Game Assets")]
     public SheepController[] sheep;
@@ -64,9 +64,9 @@ public class SingleGameManager : MonoBehaviour {
     }
 
     public void Start() {
-        isTraining = GameManager.Instance.isTraining;
+        haveAI = GameManager.Instance.haveAI;
 
-        if (isTraining) {
+        if (haveAI) {
             Academy.Instance.OnEnvironmentReset += ResetGame;
         }
         OneTimeSetup();

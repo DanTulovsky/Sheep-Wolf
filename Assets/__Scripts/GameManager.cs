@@ -27,10 +27,9 @@ public class GameManager : Singleton<GameManager> {
     [Header("Agent Control")]
     public AgentController sheepAgenController;
     public AgentController wolfAgentController;
-    public bool isTraining = false;
 
     [Header("Game Settings")]
-    [SerializeField] private SingleGameManager singleGameManager;
+    [HideInInspector] public bool haveAI = false;
 
     private int wolfWon;
     private int sheepWon;
@@ -39,7 +38,6 @@ public class GameManager : Singleton<GameManager> {
     private List<SingleGameManager> traingingAreas = new List<SingleGameManager>();
     private StatsRecorder statsRecorder;
     private bool nextTurnReady = false;
-    private bool haveAI = false;
 
 
     protected override void Awake() {
@@ -56,32 +54,33 @@ public class GameManager : Singleton<GameManager> {
     // Start is called before the first frame update
     void Start() {
 
-        if (isTraining) {
-            int numCols = Mathf.FloorToInt(Mathf.Sqrt(numTrainingAreas));
+        int numCols = Mathf.FloorToInt(Mathf.Sqrt(numTrainingAreas));
 
-            int row = 0;
-            int col = 0;
+        int row = 0;
+        int col = 0;
 
-            for (int i = 0; i < numTrainingAreas; i++) {
-                GameObject ta = Instantiate(trainingAreaPrefab, new Vector3(0, 0, 0), Quaternion.identity, transform).gameObject;
-                ta.transform.SetParent(transform);
-                ta.transform.localPosition = new Vector3(col * columns + i % numCols, 0, row);
-                SingleGameManager sgm = ta.GetComponentInChildren<SingleGameManager>();
+        for (int i = 0; i < numTrainingAreas; i++) {
+            GameObject ta = Instantiate(trainingAreaPrefab, new Vector3(0, 0, 0), Quaternion.identity, transform).gameObject;
+            ta.transform.SetParent(transform);
+            ta.transform.localPosition = new Vector3(col * columns + i % numCols, 0, row);
+            SingleGameManager sgm = ta.GetComponentInChildren<SingleGameManager>();
 
-                col++;
+            col++;
 
-                if (col >= numCols) {
-                    row += rows + 1;
-                    col = 0;
-                }
-
-
-                // Disable per-game overlay in this training mode
-                sgm.DisableStatsOverlay();
-
-                traingingAreas.Add(sgm);
+            if (col >= numCols) {
+                row += rows + 1;
+                col = 0;
             }
+
+
+            // Disable per-game overlay in this training mode
+            if (numTrainingAreas > 1) {
+                sgm.DisableStatsOverlay();
+            }
+
+            traingingAreas.Add(sgm);
         }
+
         if (haveAI) {
             Academy.Instance.EnvironmentStep();
         }
@@ -129,10 +128,6 @@ public class GameManager : Singleton<GameManager> {
     }
 
     private void AllowNextTurn() {
-        if (!isTraining) {
-            singleGameManager.turnDone = false;
-        }
-
         foreach (var area in traingingAreas) {
             area.turnDone = false;
         }

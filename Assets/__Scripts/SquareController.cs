@@ -205,7 +205,6 @@ public class SquareController : MonoBehaviour, IPointerClickHandler {
             case PointerEventData.InputButton.Left:
 
                 if (gameManager.Turn == Player.Wolf) {
-                    Debug.Log("wolf move");
                     if (gameManager.WolfMovePossible(this)) {
                         gameManager.wolfNextMove = this;
                         gameManager.turnDone = false;
