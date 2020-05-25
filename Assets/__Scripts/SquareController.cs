@@ -30,6 +30,7 @@ public class SquareController : MonoBehaviour, IPointerClickHandler {
 
     // Update is called once per frame
     void Update() {
+        GetComponent<Renderer>().material.SetColor("_Color", color);
 
     }
 

@@ -6,6 +6,9 @@ public class WolfController : GameObjectBase, IPointerClickHandler {
     // Start is called before the first frame update
     protected override void Start() {
         base.Start();
+
+        Renderer renderer = gameObject.GetComponent<Renderer>();
+        renderer.material.SetColor("_Color", gameManager.wolfColor);
     }
 
     // Update is called once per frame

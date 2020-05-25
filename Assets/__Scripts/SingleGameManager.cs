@@ -43,6 +43,11 @@ public class SingleGameManager : MonoBehaviour {
     public int rows;
     public int columns;
 
+    public Color redSquareColor = Color.red;
+    public Color blackSquareColor = Color.black;
+    public Color sheepColor = Color.white;
+    public Color wolfColor = Color.black;
+
     [HideInInspector] public SquareController[,] squares;
     [HideInInspector] public Player Turn { get => turn; set => turn = value; }
     [HideInInspector] public SheepController sheepNext;
@@ -52,8 +57,7 @@ public class SingleGameManager : MonoBehaviour {
     [HideInInspector] public int wolfWon;
     [HideInInspector] public int sheepWon;
     [HideInInspector] public int tie;
-    //[HideInInspector] public bool turnDone = false;
-    public bool turnDone = false;
+    [HideInInspector] public bool turnDone = false;
     [HideInInspector] public GameObject selectedObject;
 
 
@@ -109,6 +113,7 @@ public class SingleGameManager : MonoBehaviour {
                             turn = Player.Wolf;
                             decisionRequested = false;
                         }
+                        selectedObject = null;
                         turnDone = true;
                     }
                     break;
@@ -136,6 +141,7 @@ public class SingleGameManager : MonoBehaviour {
                             //UnSelect();
                             decisionRequested = false;
                         }
+                        selectedObject = null;
                         turnDone = true;
                     }
 
@@ -160,6 +166,9 @@ public class SingleGameManager : MonoBehaviour {
     }
 
     public void OneTimeSetup() {
+
+        sheepColor = GameManager.Instance.sheepColor;
+        wolfColor = GameManager.Instance.wolfColor;
 
         SetupSquares();
         setWolfStartingPosition();
@@ -194,12 +203,15 @@ public class SingleGameManager : MonoBehaviour {
         columns = GameManager.Instance.rows;
         rows = GameManager.Instance.columns;
 
+        redSquareColor = GameManager.Instance.redSquareColor;
+        blackSquareColor = GameManager.Instance.blackSquareColor;
+
         squares = new SquareController[columns, rows];
         Color clr;
         Color colColor = Color.black;
 
         for (int c = 0; c < columns; c++) {
-            colColor = (colColor == Color.red) ? Color.black : Color.red;
+            colColor = (colColor == redSquareColor) ? blackSquareColor : redSquareColor;
             clr = colColor;
 
             for (int r = 0; r < rows; r++) {
@@ -215,7 +227,7 @@ public class SingleGameManager : MonoBehaviour {
                 squareC.color = clr;
                 squareC.Empty();
 
-                clr = (clr == Color.red) ? Color.black : Color.red;
+                clr = (clr == redSquareColor) ? blackSquareColor : redSquareColor;
             }
         }
     }

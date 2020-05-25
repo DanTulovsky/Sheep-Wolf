@@ -31,6 +31,10 @@ public class GameManager : Singleton<GameManager> {
 
     [Header("Game Settings")]
     [HideInInspector] public bool haveAI = false;
+    public Color redSquareColor = Color.red;
+    public Color blackSquareColor = Color.black;
+    public Color sheepColor = Color.white;
+    public Color wolfColor = Color.black;
 
     [Header("UI Elements")]
     public TMP_Dropdown dropdownSheepController;
