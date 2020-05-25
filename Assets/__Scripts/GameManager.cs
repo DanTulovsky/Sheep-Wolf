@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System;
 using UnityEngine;
 using Unity.MLAgents;
 using TMPro;
@@ -25,11 +26,16 @@ public class GameManager : Singleton<GameManager> {
     [SerializeField] private TMP_Text tieText;
 
     [Header("Agent Control")]
-    public AgentController sheepAgenController;
-    public AgentController wolfAgentController;
+    public AgentController sheepAgentController = AgentController.Human;
+    public AgentController wolfAgentController = AgentController.AI;
 
     [Header("Game Settings")]
     [HideInInspector] public bool haveAI = false;
+
+    [Header("UI Elements")]
+    public TMP_Dropdown dropdownSheepController;
+    public TMP_Dropdown dropdownWolfController;
+
 
     private int wolfWon;
     private int sheepWon;
@@ -38,12 +44,19 @@ public class GameManager : Singleton<GameManager> {
     private List<SingleGameManager> traingingAreas = new List<SingleGameManager>();
     private StatsRecorder statsRecorder;
     private bool nextTurnReady = false;
+    private bool startCalled = false;
+
+    public bool gameReadyToStart = false;
+    public GameObject menuCanvas;
+    public GameObject gameStatsOverlay;
 
 
     protected override void Awake() {
         base.Awake();
 
-        if (wolfAgentController == AgentController.AI || sheepAgenController == AgentController.AI) {
+
+
+        if (wolfAgentController == AgentController.AI || sheepAgentController == AgentController.AI) {
             haveAI = true;
         }
 
@@ -53,6 +66,12 @@ public class GameManager : Singleton<GameManager> {
 
     // Start is called before the first frame update
     void Start() {
+        StartIfRead();
+    }
+
+    void StartIfRead() {
+
+        if (!gameReadyToStart || startCalled) { return; };
 
         int numCols = Mathf.FloorToInt(Mathf.Sqrt(numTrainingAreas));
 
@@ -85,10 +104,19 @@ public class GameManager : Singleton<GameManager> {
             Academy.Instance.EnvironmentStep();
         }
 
+        startCalled = true;
     }
 
     // Update is called once per frame
     void Update() {
+        StartIfRead();
+        UpdateIfRunning();
+    }
+
+
+    void UpdateIfRunning() {
+
+        if (!gameReadyToStart || !startCalled) { return; };
 
         nextTurnReady = true;
         wolfWon = 0;
@@ -123,13 +151,28 @@ public class GameManager : Singleton<GameManager> {
             sheepGamesWonText.SetText(sheepWon.ToString());
             tieText.SetText(tie.ToString());
         }
-
-
     }
 
     private void AllowNextTurn() {
         foreach (var area in traingingAreas) {
             area.turnDone = false;
         }
+    }
+
+    public void StartGame() {
+
+        gameReadyToStart = true;
+        menuCanvas.SetActive(false);
+        gameStatsOverlay.SetActive(true);
+    }
+
+    public void SetSheepAgentController() {
+        var value = dropdownSheepController.options[dropdownSheepController.value];
+        sheepAgentController = (AgentController)System.Enum.Parse(typeof(AgentController), value.text);
+    }
+
+    public void SetWolfAgentController() {
+        var value = dropdownWolfController.options[dropdownWolfController.value];
+        wolfAgentController = (AgentController)System.Enum.Parse(typeof(AgentController), value.text);
     }
 }

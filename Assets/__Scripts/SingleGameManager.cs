@@ -87,7 +87,7 @@ public class SingleGameManager : MonoBehaviour {
         if (!turnDone) {
             switch (Turn) {
                 case Player.Sheep:
-                    if (GameManager.Instance.sheepAgenController == AgentController.AI && !decisionRequested) {
+                    if (GameManager.Instance.sheepAgentController == AgentController.AI && !decisionRequested) {
                         // Collects observations and gets an action
                         // this sets sheepNext and sheepNextMove
                         sheepAgent.RequestDecision();
