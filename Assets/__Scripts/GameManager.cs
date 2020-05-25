@@ -30,11 +30,11 @@ public class GameManager : Singleton<GameManager> {
     public AgentController wolfAgentController = AgentController.AI;
 
     [Header("Game Settings")]
-    [HideInInspector] public bool haveAI = false;
     public Color redSquareColor = Color.red;
     public Color blackSquareColor = Color.black;
     public Color sheepColor = Color.white;
     public Color wolfColor = Color.black;
+    [HideInInspector] public bool haveAI = false;
 
     [Header("UI Elements")]
     public TMP_Dropdown dropdownSheepController;
