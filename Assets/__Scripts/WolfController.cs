@@ -15,7 +15,7 @@ public class WolfController : GameObjectBase, IPointerClickHandler {
     }
 
     void IPointerClickHandler.OnPointerClick(PointerEventData eventData) {
-        if (gameManager.Turn == Player.Wolf) {
+        if (gameManager.Turn == Player.Wolf && GameManager.Instance.wolfAgentController == AgentController.Human) {
             base.OnPointerClick(eventData);
         }
     }

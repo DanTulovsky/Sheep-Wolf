@@ -20,9 +20,9 @@ public enum Controller {
 
 public class SingleGameManager : MonoBehaviour {
     private Player turn = Player.Sheep;
-    private StatsRecorder statsRecorder;
     private bool decisionRequested = false;
     private Player winner;
+    private bool isTraining = false;
 
     [Header("Game Assets")]
     public SheepController[] sheep;
@@ -52,7 +52,9 @@ public class SingleGameManager : MonoBehaviour {
     [HideInInspector] public int wolfWon;
     [HideInInspector] public int sheepWon;
     [HideInInspector] public int tie;
-    [HideInInspector] public bool turnDone = false;
+    //[HideInInspector] public bool turnDone = false;
+    public bool turnDone = false;
+    [HideInInspector] public GameObject selectedObject;
 
 
     public void Awake() {
@@ -62,8 +64,11 @@ public class SingleGameManager : MonoBehaviour {
     }
 
     public void Start() {
-        Academy.Instance.OnEnvironmentReset += ResetGame;
-        statsRecorder = Academy.Instance.StatsRecorder;
+        isTraining = GameManager.Instance.isTraining;
+
+        if (isTraining) {
+            Academy.Instance.OnEnvironmentReset += ResetGame;
+        }
         OneTimeSetup();
     }
 
@@ -82,15 +87,16 @@ public class SingleGameManager : MonoBehaviour {
         if (!turnDone) {
             switch (Turn) {
                 case Player.Sheep:
-                    if (!decisionRequested) {
+                    if (GameManager.Instance.sheepAgenController == AgentController.AI && !decisionRequested) {
                         // Collects observations and gets an action
                         // this sets sheepNext and sheepNextMove
                         sheepAgent.RequestDecision();
                         decisionRequested = true;
 
                         // Add penalty per step to encourage the seep to capture the wolf
-                        float perStepSheepReward = -0.003f;
-                        sheepAgent.AddReward(perStepSheepReward);
+                        //float perStepSheepReward = -0.003f;
+                        //sheepAgent.AddReward(perStepSheepReward);
+                        turnDone = true;
                     }
                     if (sheepNext && sheepNextMove) {
                         HightlightNextPossibleMove(sheepNext);
@@ -103,12 +109,12 @@ public class SingleGameManager : MonoBehaviour {
                             turn = Player.Wolf;
                             decisionRequested = false;
                         }
+                        turnDone = true;
                     }
-                    turnDone = true;
                     break;
 
                 case Player.Wolf:
-                    if (!decisionRequested) {
+                    if (GameManager.Instance.wolfAgentController == AgentController.AI && !decisionRequested) {
                         HightlightNextPossibleMove(wolf);
                         wolf.GetComponent<WolfController>().HighLight();
 
@@ -119,6 +125,7 @@ public class SingleGameManager : MonoBehaviour {
                         // Add penalty per step to encourage the wolf to get to the end
                         //float perStepWolfReward = -0.003f;
                         //wolfAgent.AddReward(perStepWolfReward);
+                        turnDone = true;
                     }
 
                     if (wolfNextMove) {
@@ -129,9 +136,9 @@ public class SingleGameManager : MonoBehaviour {
                             //UnSelect();
                             decisionRequested = false;
                         }
+                        turnDone = true;
                     }
 
-                    turnDone = true;
                     break;
 
                 default:

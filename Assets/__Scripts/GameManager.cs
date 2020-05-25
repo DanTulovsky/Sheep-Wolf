@@ -29,6 +29,9 @@ public class GameManager : Singleton<GameManager> {
     public AgentController wolfAgentController;
     public bool isTraining = false;
 
+    [Header("Game Settings")]
+    [SerializeField] private SingleGameManager singleGameManager;
+
     private int wolfWon;
     private int sheepWon;
     private int tie;
@@ -112,7 +115,9 @@ public class GameManager : Singleton<GameManager> {
         }
 
         if (nextTurnReady) {
-            Academy.Instance.EnvironmentStep();
+            if (haveAI) {
+                Academy.Instance.EnvironmentStep();
+            }
             AllowNextTurn();
 
             wolfGamesWonText.SetText(wolfWon.ToString());
@@ -124,6 +129,10 @@ public class GameManager : Singleton<GameManager> {
     }
 
     private void AllowNextTurn() {
+        if (!isTraining) {
+            singleGameManager.turnDone = false;
+        }
+
         foreach (var area in traingingAreas) {
             area.turnDone = false;
         }

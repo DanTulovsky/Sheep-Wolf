@@ -40,6 +40,7 @@ public class SquareController : MonoBehaviour, IPointerClickHandler {
     public void Occupy(GameObject o) {
         occupant = o;
     }
+
     public void Empty() {
         occupant = null;
     }
@@ -92,6 +93,7 @@ public class SquareController : MonoBehaviour, IPointerClickHandler {
     // row: -1, col: 1 = 1
     // row: 1, col: -1 = 2
     // row: 1, col: 1 = 3
+    // Used in ML training
     public List<bool> PossibleWolfMovesDir() {
         List<bool> moves = new List<bool> { };
 
@@ -123,6 +125,7 @@ public class SquareController : MonoBehaviour, IPointerClickHandler {
     // returns a true, false list for the possible directions a sheep can move:
     // row: 1, col: -1 = 0
     // row: 1, col: 1= 1
+    // Used in ML training
     public List<bool> PossibleSheepMovesDir() {
         List<bool> moves = new List<bool> { };
 
@@ -198,18 +201,29 @@ public class SquareController : MonoBehaviour, IPointerClickHandler {
 
         //if (occupant != null) { return; };
 
-        //switch (eventData.button) {
-        //    case PointerEventData.InputButton.Left:
-        //        //if (!gameManager.selectedObject) { return; };
+        switch (eventData.button) {
+            case PointerEventData.InputButton.Left:
 
-        //        if (gameManager.Turn == Player.Wolf) {
-        //            gameManager.wolfNextMove = gameObject;
-        //        }
-        //        if (gameManager.Turn == Player.Sheep) {
-        //            gameManager.sheepNextMove = gameObject;
-        //        }
-        //        break;
-        //}
+                if (gameManager.Turn == Player.Wolf) {
+                    Debug.Log("wolf move");
+                    if (gameManager.WolfMovePossible(this)) {
+                        gameManager.wolfNextMove = this;
+                        gameManager.turnDone = false;
+                    }
+                }
+
+                if (!gameManager.selectedObject) { return; };
+
+                if (gameManager.Turn == Player.Sheep) {
+                    SheepController sheepController = gameManager.selectedObject.GetComponent<SheepController>();
+                    if (gameManager.SheepMovePossible(sheepController, this)) {
+                        gameManager.sheepNextMove = this;
+                        gameManager.sheepNext = sheepController;
+                        gameManager.turnDone = false;
+                    }
+                }
+                break;
+        }
     }
 
     public bool IsWolf(GameObject obj) {

@@ -44,6 +44,7 @@ public class GameObjectBase : MonoBehaviour {
             case PointerEventData.InputButton.Left:
                 HightLightRemoveAll();
                 HighLight();
+                gameManager.HightlightNextPossibleMove(this);
                 break;
         }
     }
@@ -55,6 +56,7 @@ public class GameObjectBase : MonoBehaviour {
 
     public void HighLightRemove() {
         outline.enabled = false;
+        isSelected = false;
     }
 
     private void HightLightRemoveAll() {

@@ -18,8 +18,9 @@ public class SheepController : GameObjectBase, IPointerClickHandler {
     }
 
     void IPointerClickHandler.OnPointerClick(PointerEventData eventData) {
-        if (gameManager.Turn == Player.Sheep) {
+        if (gameManager.Turn == Player.Sheep && GameManager.Instance.sheepAgenController == AgentController.Human) {
             base.OnPointerClick(eventData);
+            gameManager.selectedObject = gameObject;
         }
     }
 }
