@@ -58,8 +58,6 @@ public class GameManager : Singleton<GameManager> {
     protected override void Awake() {
         base.Awake();
 
-
-
         if (wolfAgentController == AgentController.AI || sheepAgentController == AgentController.AI) {
             haveAI = true;
         }
@@ -95,11 +93,7 @@ public class GameManager : Singleton<GameManager> {
                 col = 0;
             }
 
-
-            // Disable per-game overlay in this training mode
-            if (numTrainingAreas > 1) {
-                sgm.DisableStatsOverlay();
-            }
+            sgm.DisableStatsOverlay();
 
             traingingAreas.Add(sgm);
         }

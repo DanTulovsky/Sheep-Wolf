@@ -35,6 +35,8 @@ public class SingleGameManager : MonoBehaviour {
     [SerializeField] private TMP_Text sheepGamesWonText;
     [SerializeField] private TMP_Text tieText;
     [SerializeField] private GameObject statsOverlay;
+    private float sheepYOffset = 0.75f;
+    private float wolfYOffset = 20.0f;
 
     [Header("AI Agents")]
     public Agent wolfAgent;
@@ -248,7 +250,7 @@ public class SingleGameManager : MonoBehaviour {
         int startingCol = possibleCols[Random.Range(0, possibleCols.Count)];
 
         wolf.transform.SetParent(squares[startingCol, startingRow].transform);
-        wolf.transform.localPosition = new Vector3(0, 0.5f, 0);
+        wolf.transform.localPosition = new Vector3(0, wolfYOffset, 0);
         wolf.GetComponent<WolfController>().SetSquare(squares[startingCol, startingRow]);
         squares[startingCol, startingRow].GetComponent<SquareController>().Occupy(wolf.gameObject);
     }
@@ -264,7 +266,7 @@ public class SingleGameManager : MonoBehaviour {
 
         for (int i = 0; i < sheep.Length; i++) {
             sheep[i].transform.SetParent(squares[possibleCols[i], startingRow].transform);
-            sheep[i].transform.localPosition = new Vector3(0, 0.75f, 0);
+            sheep[i].transform.localPosition = new Vector3(0, sheepYOffset, 0);
             sheep[i].GetComponent<SheepController>().SetSquare(squares[possibleCols[i], startingRow]);
             squares[possibleCols[i], startingRow].GetComponent<SquareController>().Occupy(sheep[i].gameObject);
         }
@@ -290,7 +292,7 @@ public class SingleGameManager : MonoBehaviour {
 
         if (SheepMovePossible(selectedObject, to)) {
             selectedObject.transform.SetParent(to.transform);
-            selectedObject.transform.localPosition = new Vector3(0, 0.75f, 0);
+            selectedObject.transform.localPosition = new Vector3(0, sheepYOffset, 0);
             squareController.Empty();
             toController.Occupy(selectedObject.gameObject);
             selectedObject.GetComponent<SheepController>().SetSquare(to);
@@ -323,7 +325,7 @@ public class SingleGameManager : MonoBehaviour {
 
         if (WolfMovePossible(to)) {
             wolf.transform.SetParent(to.transform);
-            wolf.transform.localPosition = new Vector3(0, 0.75f, 0);
+            wolf.transform.localPosition = new Vector3(0, wolfYOffset, 0);
             squareController.Empty();
             to.Occupy(wolf.gameObject);
             wolfController.SetSquare(to);
