@@ -3,6 +3,8 @@ using UnityEngine.EventSystems;
 using UnityEngine;
 
 public class WolfController : GameObjectBase, IPointerClickHandler {
+
+
     // Start is called before the first frame update
     protected override void Start() {
         base.Start();

@@ -548,6 +548,7 @@ MonoBehaviour:
   haveAI: 0
   dropdownSheepController: {fileID: 941048818}
   dropdownWolfController: {fileID: 742046419}
+  animTime: 0.5
   gameReadyToStart: 0
   menuCanvas: {fileID: 224578223473814350}
   gameStatsOverlay: {fileID: 1630091409}

@@ -10,7 +10,12 @@ public class GameObjectBase : MonoBehaviour {
     private bool isSelected;
     private SquareController square;
 
+    public Animator anim;
+
     protected virtual void Start() {
+        anim = GetComponent<Animator>();
+        anim.enabled = false;
+
         AddOutline();
     }
 
@@ -74,6 +79,14 @@ public class GameObjectBase : MonoBehaviour {
 
     public override string ToString() {
         return $"Object at: {square.GetComponent<SquareController>().column},{square.GetComponent<SquareController>().row}";
+    }
+
+    public void DisableAnim() {
+        anim.enabled = false;
+    }
+
+    public void EnableAnim() {
+        anim.enabled = true;
     }
 
 }

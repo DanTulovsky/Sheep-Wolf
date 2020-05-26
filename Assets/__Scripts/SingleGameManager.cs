@@ -23,6 +23,7 @@ public class SingleGameManager : MonoBehaviour {
     private bool decisionRequested = false;
     private Player winner;
     private bool haveAI = false;
+    private float animTime = 1.5f;
 
     [Header("Game Assets")]
     public SheepController[] sheep;
@@ -36,7 +37,7 @@ public class SingleGameManager : MonoBehaviour {
     [SerializeField] private TMP_Text tieText;
     [SerializeField] private GameObject statsOverlay;
     private float sheepYOffset = 0.75f;
-    private float wolfYOffset = 20.0f;
+    private float wolfYOffset = 18.3f;
 
     [Header("AI Agents")]
     public Agent wolfAgent;
@@ -71,6 +72,7 @@ public class SingleGameManager : MonoBehaviour {
 
     public void Start() {
         haveAI = GameManager.Instance.haveAI;
+        animTime = GameManager.Instance.animTime;
 
         if (haveAI) {
             Academy.Instance.OnEnvironmentReset += ResetGame;
@@ -109,14 +111,10 @@ public class SingleGameManager : MonoBehaviour {
                         sheepNext.GetComponent<SheepController>().HighLight();
 
                         if (SheepMovePossible(sheepNext, sheepNextMove)) {
-                            SheepMoveTo(sheepNext, sheepNextMove);
+                            SheepMoveTo(sheepNext, sheepNextMove); // calls FinishSheepMove
                             sheepNextMove = null;
                             sheepNext = null;
-                            turn = Player.Wolf;
-                            decisionRequested = false;
                         }
-                        selectedObject = null;
-                        turnDone = true;
                     }
                     break;
 
@@ -137,14 +135,10 @@ public class SingleGameManager : MonoBehaviour {
 
                     if (wolfNextMove) {
                         if (WolfMovePossible(wolfNextMove)) {
-                            WolfMoveTo(wolfNextMove);
+                            wolf.EnableAnim();
+                            WolfMoveTo(wolfNextMove); // calls FinishWolfMove
                             wolfNextMove = null;
-                            turn = Player.Sheep;
-                            //UnSelect();
-                            decisionRequested = false;
                         }
-                        selectedObject = null;
-                        turnDone = true;
                     }
 
                     break;
@@ -161,6 +155,24 @@ public class SingleGameManager : MonoBehaviour {
             tieText.SetText(tie.ToString());
 
         }
+    }
+
+    private void FinishWolfMove() {
+        decisionRequested = false;
+        turn = Player.Sheep;
+        wolf.DisableAnim();
+
+        selectedObject = null;
+        turnDone = true;
+    }
+
+    private void FinishSheepMove(SheepController sheepController) {
+        turn = Player.Wolf;
+        decisionRequested = false;
+        sheepController.DisableAnim();
+
+        selectedObject = null;
+        turnDone = true;
     }
 
     public void DisableStatsOverlay() {
@@ -292,7 +304,9 @@ public class SingleGameManager : MonoBehaviour {
 
         if (SheepMovePossible(selectedObject, to)) {
             selectedObject.transform.SetParent(to.transform);
-            selectedObject.transform.localPosition = new Vector3(0, sheepYOffset, 0);
+            selectedObject.gameObject.LeanMoveLocal(new Vector3(0, sheepYOffset, 0), animTime)
+                .setOnComplete(() => FinishSheepMove(selectedObject));
+            //selectedObject.transform.localPosition = new Vector3(0, sheepYOffset, 0);
             squareController.Empty();
             toController.Occupy(selectedObject.gameObject);
             selectedObject.GetComponent<SheepController>().SetSquare(to);
@@ -325,7 +339,10 @@ public class SingleGameManager : MonoBehaviour {
 
         if (WolfMovePossible(to)) {
             wolf.transform.SetParent(to.transform);
-            wolf.transform.localPosition = new Vector3(0, wolfYOffset, 0);
+            Vector3 dest = new Vector3(0, wolfYOffset, 0);
+            wolf.gameObject.LeanMoveLocal(dest, animTime)
+                           .setOnComplete(FinishWolfMove);
+            //wolf.transform.localPosition = new Vector3(0, wolfYOffset, 0);
             squareController.Empty();
             to.Occupy(wolf.gameObject);
             wolfController.SetSquare(to);

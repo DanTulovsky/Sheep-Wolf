@@ -160,9 +160,14 @@ MonoBehaviour:
   tieText: {fileID: 842771970}
   sheepAgentController: 1
   wolfAgentController: 1
+  redSquareColor: {r: 1, g: 0, b: 0, a: 1}
+  blackSquareColor: {r: 0, g: 0, b: 0, a: 1}
+  sheepColor: {r: 1, g: 1, b: 1, a: 1}
+  wolfColor: {r: 0, g: 0, b: 0, a: 1}
   haveAI: 0
   dropdownSheepController: {fileID: 0}
   dropdownWolfController: {fileID: 0}
+  animTime: 0
   gameReadyToStart: 1
   menuCanvas: {fileID: 0}
   gameStatsOverlay: {fileID: 0}

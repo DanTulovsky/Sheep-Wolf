@@ -26,4 +26,5 @@ public class SheepController : GameObjectBase, IPointerClickHandler {
             gameManager.selectedObject = gameObject;
         }
     }
+
 }

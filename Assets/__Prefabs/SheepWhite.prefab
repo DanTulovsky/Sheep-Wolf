@@ -114,6 +114,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   gameManager: {fileID: 0}
+  anim: {fileID: 0}
 --- !u!65 &107736695359951017
 BoxCollider:
   m_ObjectHideFlags: 0

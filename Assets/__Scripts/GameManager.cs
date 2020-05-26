@@ -45,6 +45,8 @@ public class GameManager : Singleton<GameManager> {
     private int sheepWon;
     private int tie;
 
+    public float animTime = 1.5f;
+
     private List<SingleGameManager> traingingAreas = new List<SingleGameManager>();
     private StatsRecorder statsRecorder;
     private bool nextTurnReady = false;
