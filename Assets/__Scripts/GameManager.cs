@@ -26,7 +26,7 @@ public class GameManager : Singleton<GameManager> {
     [SerializeField] private TMP_Text tieText;
 
     [Header("Agent Control")]
-    public AgentController sheepAgentController = AgentController.Human;
+    public AgentController sheepAgentController = AgentController.AI;
     public AgentController wolfAgentController = AgentController.AI;
 
     [Header("Game Settings")]
@@ -47,7 +47,7 @@ public class GameManager : Singleton<GameManager> {
 
     public float animTime = 1.5f;
 
-    private List<SingleGameManager> traingingAreas = new List<SingleGameManager>();
+    public List<SingleGameManager> traingingAreas = new List<SingleGameManager>();
     private StatsRecorder statsRecorder;
     private bool nextTurnReady = false;
     private bool startCalled = false;
@@ -82,22 +82,25 @@ public class GameManager : Singleton<GameManager> {
         int row = 0;
         int col = 0;
 
-        for (int i = 0; i < numTrainingAreas; i++) {
-            GameObject ta = Instantiate(trainingAreaPrefab, new Vector3(0, 0, 0), Quaternion.identity, transform).gameObject;
-            ta.transform.SetParent(transform);
-            ta.transform.localPosition = new Vector3(col * columns + i % numCols, 0, row);
-            SingleGameManager sgm = ta.GetComponentInChildren<SingleGameManager>();
+        if (traingingAreas.Count == 0) {
+            for (int i = 0; i < numTrainingAreas; i++) {
+                Debug.Log($"Creating training area {i}");
+                GameObject ta = Instantiate(trainingAreaPrefab, new Vector3(0, 0, 0), Quaternion.identity, transform).gameObject;
+                ta.transform.SetParent(transform);
+                ta.transform.localPosition = new Vector3(col * columns + i % numCols, 0, row);
+                SingleGameManager sgm = ta.GetComponentInChildren<SingleGameManager>();
 
-            col++;
+                col++;
 
-            if (col >= numCols) {
-                row += rows + 1;
-                col = 0;
+                if (col >= numCols) {
+                    row += rows + 1;
+                    col = 0;
+                }
+
+                sgm.DisableStatsOverlay();
+
+                traingingAreas.Add(sgm);
             }
-
-            sgm.DisableStatsOverlay();
-
-            traingingAreas.Add(sgm);
         }
 
         if (haveAI) {

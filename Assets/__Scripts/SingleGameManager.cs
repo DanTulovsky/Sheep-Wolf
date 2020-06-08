@@ -340,6 +340,7 @@ public class SingleGameManager : MonoBehaviour {
         if (WolfMovePossible(to)) {
             wolf.transform.SetParent(to.transform);
             Vector3 dest = new Vector3(0, wolfYOffset, 0);
+            //wolf.gameObject.transform.LookAt(transform.TransformPoint(dest), Vector3.up);
             wolf.gameObject.LeanMoveLocal(dest, animTime)
                            .setOnComplete(FinishWolfMove);
             //wolf.transform.localPosition = new Vector3(0, wolfYOffset, 0);
